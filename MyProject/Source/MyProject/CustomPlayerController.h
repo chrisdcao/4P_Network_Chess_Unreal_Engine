@@ -26,7 +26,7 @@ public:
 	void OnLeftMouseClick();
 
 	UFUNCTION()
-	void OnRightMouseClick();
+	void OnShiftLeftMouseClick();
 
 	UFUNCTION()
 	bool isClickValid(const FVector& hitLocation);

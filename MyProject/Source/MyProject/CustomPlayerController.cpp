@@ -26,8 +26,8 @@ void ACustomPlayerController::SetupInputComponent()
 	// Always call this.
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction("LMouseClick", IE_Pressed, this, &ACustomPlayerController::OnLeftMouseClick);
-	InputComponent->BindAction("RMouseClick", IE_Pressed, this, &ACustomPlayerController::OnRightMouseClick);
+	InputComponent->BindAction("LeftMouseClick", IE_Pressed, this, &ACustomPlayerController::OnLeftMouseClick);
+	InputComponent->BindAction("ShiftLeftMouseClick", IE_Pressed, this, &ACustomPlayerController::OnShiftLeftMouseClick);
 }
 
 void ACustomPlayerController::OnLeftMouseClick()
@@ -35,7 +35,7 @@ void ACustomPlayerController::OnLeftMouseClick()
 	SelectPiece();
 }
 
-void ACustomPlayerController::OnRightMouseClick()
+void ACustomPlayerController::OnShiftLeftMouseClick()
 {
 
 }
