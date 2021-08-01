@@ -39,7 +39,7 @@ ACustomPawn::ACustomPawn()
 	MaxTargetLength = 2000.0f;
 	ZoomUnits = 150.0f;
 	ZoomSmoothness = 9.0f;
-
+	// Gate Logic Boolean
 	bIsOpen = false;
 
 }
@@ -51,10 +51,10 @@ void ACustomPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	InputComponent->BindAction("SmoothZoomIn", IE_Pressed, this, &ACustomPawn::SmoothZoomIn);
 	InputComponent->BindAction("SmoothZoomOut", IE_Pressed, this, &ACustomPawn::SmoothZoomOut);
-
 	//Hook up every-frame handling for our four axes
 	InputComponent->BindAxis("MoveForward", this, &ACustomPawn::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &ACustomPawn::MoveRight);
+	InputComponent->BindAxis("MoveHigher", this, &ACustomPawn::MoveHigher);
 
 /*	
 	* Using Blueprint's Gate Logic, where: if {Gate Open} then {Receive input} else {Stop Receive input}
@@ -83,7 +83,7 @@ void ACustomPawn::GateClose()
 void ACustomPawn::SmoothZoomIn()
 {
 	UE_LOG(LogTemp, Warning, TEXT("SmoothZoomIn is called!"));
-	DesiredArmLength = SpringArmComp->TargetArmLength + ZoomUnits * -1;
+	DesiredArmLength = SpringArmComp->TargetArmLength + ZoomUnits * -1 * 2;
 
 	if (DesiredArmLength > MaxTargetLength || DesiredArmLength < MinTargetLength)
 		DesiredArmLength = FMath::Min<float>(FMath::Max<float>(DesiredArmLength, MinTargetLength), MaxTargetLength);
@@ -92,7 +92,7 @@ void ACustomPawn::SmoothZoomIn()
 void ACustomPawn::SmoothZoomOut()
 {
 	UE_LOG(LogTemp, Warning, TEXT("SmoothZoomOut is called!"));
-	DesiredArmLength = SpringArmComp->TargetArmLength + ZoomUnits;
+	DesiredArmLength = SpringArmComp->TargetArmLength + ZoomUnits * 2;
 
 	if (DesiredArmLength > MaxTargetLength || DesiredArmLength < MinTargetLength)
 		DesiredArmLength = FMath::Min<float>(FMath::Max<float>(DesiredArmLength, MinTargetLength), MaxTargetLength);
@@ -109,6 +109,10 @@ void ACustomPawn::MoveRight(float AxisValue)
 	MovementInput.Y = FMath::Clamp<float>(AxisValue, -1.f, 1.f);
 }
 
+void ACustomPawn::MoveHigher(float AxisValue)
+{
+	MovementInput.Z = FMath::Clamp<float>(AxisValue, -1.f, 1.f);
+}
 
 // MODIFY THESE TO CHANGE THE CAMERA RATE OF CHANGE SPEED
 void ACustomPawn::PitchCamera(float AxisValue)
@@ -143,14 +147,14 @@ void ACustomPawn::Tick(float DeltaTime)
     //Rotate our actor's yaw, which will turn our camera because we're attached to it
     {
         FRotator NewRotation = GetActorRotation();
-        NewRotation.Yaw += CameraInput.X;
+        NewRotation.Yaw += CameraInput.X * 2;
         SetActorRotation(NewRotation);
     }
 
     //Rotate our camera's pitch, but limit it so we're always looking downward
     {
         FRotator NewRotation = SpringArmComp->GetComponentRotation();
-        NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + CameraInput.Y, -80.0f, -15.0f);
+        NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + CameraInput.Y * 2, -80.0f, -15.0f);
         SpringArmComp->SetWorldRotation(NewRotation);
     }
 
@@ -161,8 +165,9 @@ void ACustomPawn::Tick(float DeltaTime)
             //Scale our movement input axis values by 100 units per second
             MovementInput = MovementInput.GetSafeNormal() * 100.0f;
             FVector NewLocation = GetActorLocation();
-            NewLocation += GetActorForwardVector() * MovementInput.X * DeltaTime * 10;
-            NewLocation += GetActorRightVector() * MovementInput.Y * DeltaTime * 10;
+            NewLocation += GetActorForwardVector() * MovementInput.X * DeltaTime * 20;
+            NewLocation += GetActorRightVector() * MovementInput.Y * DeltaTime * 20;
+            NewLocation += GetActorUpVector() * MovementInput.Z * DeltaTime * 20;
             SetActorLocation(NewLocation);
         }
     }

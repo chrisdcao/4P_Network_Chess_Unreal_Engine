@@ -28,71 +28,67 @@ protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Call every frame
+	virtual void Tick(float DeltaTime) override;
+
 public:	
 
 	UPROPERTY()
 	ACustomPlayerController* PlayerController;
 
+	/**** CAMERA VARIABLES ****/
+
 	void MoveForward(float AxisValue);
 
 	void MoveRight(float AxisValue);
 
-	void PitchCamera(float AxisValue);
-
-	void YawCamera(float AxisValue);
+	void MoveHigher(float AxisValue);
 
 	void SmoothZoomIn();
 
 	void SmoothZoomOut();
 
+	void PitchCamera(float AxisValue);
+
+	void YawCamera(float AxisValue);
+
+	/**** END OF AMERA VARIABLES ****/
+
+	// Gate Logic
 	void GateOpen();
 
 	void GateClose();
 
-	// Call every frame
-	virtual void Tick(float DeltaTime) override;
-
 protected:
 
-	UPROPERTY()
+	/**** CAMERA COMPONENTS ****/
+
 	USpringArmComponent* SpringArmComp;
 
-	UPROPERTY()
 	UCameraComponent* CameraComp;
 
-	// This static mesh comp so that we can see the camera physically and debug it
-	UPROPERTY(VisibleAnywhere, Category="CameraSpecs")
-	UStaticMeshComponent* StaticMeshComp;
+	/**** CAMERA SPECS ****/
 
-	UPROPERTY(VisibleAnywhere, Category="CameraSpecs")
-	FVector2D MovementInput;
+	UStaticMeshComponent* StaticMeshComp;	// This static mesh comp so that we can see the camera physically and debug it
 
-	UPROPERTY(VisibleAnywhere, Category="CameraSpecs")
+	FVector MovementInput;
+
 	FVector2D CameraInput;	
 
-	UPROPERTY(VisibleAnywhere, Category="CameraSpecs")
-	bool bZoomOut;
+	float MinTargetLength;	// Sets the Minimum Target Arm Length 
 
-	/* Sets the Minimum Target Arm Length */
-	UPROPERTY(VisibleAnywhere, Category = "Camera Zoom")
-	float MinTargetLength;
+	float MaxTargetLength;	// Sets the Maximum Target Arm Length 
 
-	/* Sets the Maximum Target Arm Length*/
-	UPROPERTY(VisibleAnywhere, Category = "Camera Zoom")
-	float MaxTargetLength;
+	float ZoomUnits;	// Determines the number of units are added or subtracted from the target arm length 
 
-	/* Determines the number of units are added or subtracted from the target arm length*/
-	UPROPERTY(VisibleAnywhere, Category = "Camera Zoom")
-	float ZoomUnits;
+	float ZoomSmoothness;	// How smooth the zoom will be (Higher less smooth, lower more smooth 
 
-	/*How smooth the zoom will be (Higher less smooth, lower more smooth*/
-	UPROPERTY(VisibleAnywhere, Category = "Camera Zoom")
-	float ZoomSmoothness;
-
-	bool bIsOpen;
+	/**** END OF CAMERA SPECS ****/
 
 private:
 
 	float DesiredArmLength;
+
+	bool bIsOpen;	// Gate Logic Variable 
 
 };
