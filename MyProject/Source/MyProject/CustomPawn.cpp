@@ -17,20 +17,31 @@ ACustomPawn::ACustomPawn()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 
 	// add a cube from the starter content to this place
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT(""));
-	RootComponent->SetWorldLocationAndRotation(FVector(2800.f, 0.f, 50.f), FRotator(-60.f, 0.f, 0.f));
+	RootComponent->SetWorldLocationAndRotation(FVector(2800.f, 0.f, 50.f), FRotator(0.f, 0.f, 0.f));
 	StaticMeshComp->SetupAttachment(RootComponent);
-	StaticMeshComp->SetStaticMesh(MeshAsset.Object);
+	/// CAN LATER ADD THE CUBE OR SOMETHING TO DEBUG IF NEEDED
+	// static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT(""));
+	// StaticMeshComp->SetStaticMesh(MeshAsset.Object);
 	SpringArmComp->SetupAttachment(StaticMeshComp);
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 
 	SpringArmComp->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 50.0f), FRotator(-60.0f, 0.0f, 0.0f));
 	SpringArmComp->TargetArmLength = 400.f;
-	SpringArmComp->bEnableCameraLag = true;
-	SpringArmComp->CameraLagSpeed = 3.f;
+	//SpringArmComp->bEnableCameraLag = true;
+	//SpringArmComp->CameraLagSpeed = 3.f;
 	SpringArmComp->bDoCollisionTest = false;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	// SmoothZoom Defaults -- Change inside of your BP where the actor component is located
+	DesiredArmLength = SpringArmComp->TargetArmLength;
+	MinTargetLength = 150.0f;
+	MaxTargetLength = 2000.0f;
+	ZoomUnits = 150.0f;
+	ZoomSmoothness = 9.0f;
+
+	bIsOpen = false;
+
 }
 
 // Called to bind functionality to input
@@ -38,16 +49,56 @@ void ACustomPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &ACustomPawn::ZoomIn);
-	InputComponent->BindAction("ZoomIn", IE_Released, this, &ACustomPawn::ZoomOut);
+	InputComponent->BindAction("SmoothZoomIn", IE_Pressed, this, &ACustomPawn::SmoothZoomIn);
+	InputComponent->BindAction("SmoothZoomOut", IE_Pressed, this, &ACustomPawn::SmoothZoomOut);
 
 	//Hook up every-frame handling for our four axes
 	InputComponent->BindAxis("MoveForward", this, &ACustomPawn::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &ACustomPawn::MoveRight);
+
+/*	
+	* Using Blueprint's Gate Logic, where: if {Gate Open} then {Receive input} else {Stop Receive input}
+	* Apply here: Right Mouse Button 'Pressed' state triggers Gate Open 
+			      Right Mouse Button 'Released' state triggers Gate Close
+	-> Only during this time between 'Open' and 'Close' states, we accept receival of Axis Keybindings
+	-> Defaultly the Gate is Close, Left Mouse Button trigger is not set to open the Gate and thus will not be involved in this Axis Keybinding events 
+*/
+	InputComponent->BindAction("Pan", IE_Pressed, this, &ACustomPawn::GateOpen);
+	InputComponent->BindAction("Pan", IE_Released, this, &ACustomPawn::GateClose);
+	/* We just have to set the trigger keys trung` nhau (i.e. RMB <Pressed until Release> == RMB <Hold>) and it will feel like all 4 functions are activated through only 1 Action */
 	InputComponent->BindAxis("CameraPitch", this, &ACustomPawn::PitchCamera);
 	InputComponent->BindAxis("CameraYaw", this, &ACustomPawn::YawCamera);
 }
 
+void ACustomPawn::GateOpen()
+{
+	bIsOpen = true;
+}
+
+void ACustomPawn::GateClose()
+{
+	bIsOpen = false;
+}
+
+void ACustomPawn::SmoothZoomIn()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SmoothZoomIn is called!"));
+	DesiredArmLength = SpringArmComp->TargetArmLength + ZoomUnits * -1;
+
+	if (DesiredArmLength > MaxTargetLength || DesiredArmLength < MinTargetLength)
+		DesiredArmLength = FMath::Min<float>(FMath::Max<float>(DesiredArmLength, MinTargetLength), MaxTargetLength);
+}
+
+void ACustomPawn::SmoothZoomOut()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SmoothZoomOut is called!"));
+	DesiredArmLength = SpringArmComp->TargetArmLength + ZoomUnits;
+
+	if (DesiredArmLength > MaxTargetLength || DesiredArmLength < MinTargetLength)
+		DesiredArmLength = FMath::Min<float>(FMath::Max<float>(DesiredArmLength, MinTargetLength), MaxTargetLength);
+}
+
+// MODIFY THESE TO CHANGE THE MOVEFORWARD AND MOVERIGHT SPEED
 void ACustomPawn::MoveForward(float AxisValue)
 {
 	MovementInput.X = FMath::Clamp<float>(AxisValue, -1.f, 1.f);
@@ -58,24 +109,18 @@ void ACustomPawn::MoveRight(float AxisValue)
 	MovementInput.Y = FMath::Clamp<float>(AxisValue, -1.f, 1.f);
 }
 
+
+// MODIFY THESE TO CHANGE THE CAMERA RATE OF CHANGE SPEED
 void ACustomPawn::PitchCamera(float AxisValue)
 {
-	CameraInput.Y = AxisValue;
+	if (bIsOpen) CameraInput.Y = AxisValue;
+	else		 CameraInput.Y = 0.f;
 }
 
 void ACustomPawn::YawCamera(float AxisValue)
 {
-	CameraInput.X = AxisValue;
-}
-
-void ACustomPawn::ZoomIn()
-{
-	bZoomingIn = true;
-}
-
-void ACustomPawn::ZoomOut()
-{
-	bZoomingIn = false;
+	if (bIsOpen) CameraInput.X = AxisValue;
+	else		 CameraInput.X = 0.f;
 }
 
 // Called when the game starts or when spawned
@@ -90,18 +135,10 @@ void ACustomPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//Zoom in if ZoomIn button is down, zoom back out if it's not
-	{
-		if (bZoomingIn)
-			ZoomFactor += DeltaTime / 0.5f;         //Zoom in over half a second
-		else
-			ZoomFactor -= DeltaTime / 0.25f;        //Zoom out over a quarter of a second
-		ZoomFactor = FMath::Clamp<float>(ZoomFactor, 0.0f, 1.0f);
+	if (!ensure(SpringArmComp)) return;
 
-		//Blend our camera's FOV and our SpringArm's length based on ZoomFactor
-		CameraComp->FieldOfView = FMath::Lerp<float>(90.0f, 60.0f, ZoomFactor);
-		SpringArmComp->TargetArmLength = FMath::Lerp<float>(400.0f, 300.0f, ZoomFactor);
-	}
+	if (!FMath::IsNearlyEqual(SpringArmComp->TargetArmLength, DesiredArmLength, 0.5f)) 
+		SpringArmComp->TargetArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength, DesiredArmLength, DeltaTime, ZoomSmoothness);
 
     //Rotate our actor's yaw, which will turn our camera because we're attached to it
     {
@@ -124,8 +161,8 @@ void ACustomPawn::Tick(float DeltaTime)
             //Scale our movement input axis values by 100 units per second
             MovementInput = MovementInput.GetSafeNormal() * 100.0f;
             FVector NewLocation = GetActorLocation();
-            NewLocation += GetActorForwardVector() * MovementInput.X * DeltaTime;
-            NewLocation += GetActorRightVector() * MovementInput.Y * DeltaTime;
+            NewLocation += GetActorForwardVector() * MovementInput.X * DeltaTime * 10;
+            NewLocation += GetActorRightVector() * MovementInput.Y * DeltaTime * 10;
             SetActorLocation(NewLocation);
         }
     }

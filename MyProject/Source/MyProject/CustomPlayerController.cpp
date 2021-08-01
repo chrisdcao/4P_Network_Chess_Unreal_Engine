@@ -15,8 +15,6 @@ ACustomPlayerController::ACustomPlayerController()
 
 	Board = nullptr;
 	Pieces = nullptr;
-
-
 	// init all the mechanics arrays and variables here
 	// remember to swap the value of the mechanic array whenever you move
 }

@@ -41,9 +41,13 @@ public:
 
 	void YawCamera(float AxisValue);
 
-	void ZoomIn();
+	void SmoothZoomIn();
 
-	void ZoomOut();
+	void SmoothZoomOut();
+
+	void GateOpen();
+
+	void GateClose();
 
 	// Call every frame
 	virtual void Tick(float DeltaTime) override;
@@ -57,19 +61,38 @@ protected:
 	UCameraComponent* CameraComp;
 
 	// This static mesh comp so that we can see the camera physically and debug it
-	UPROPERTY(EditAnywhere, Category="CameraSpecs")
+	UPROPERTY(VisibleAnywhere, Category="CameraSpecs")
 	UStaticMeshComponent* StaticMeshComp;
 
-	UPROPERTY(EditAnywhere, Category="CameraSpecs")
+	UPROPERTY(VisibleAnywhere, Category="CameraSpecs")
 	FVector2D MovementInput;
 
-	UPROPERTY(EditAnywhere, Category="CameraSpecs")
-	FVector2D CameraInput;
+	UPROPERTY(VisibleAnywhere, Category="CameraSpecs")
+	FVector2D CameraInput;	
 
-	UPROPERTY(EditAnywhere, Category="CameraSpecs")
-	float ZoomFactor;
+	UPROPERTY(VisibleAnywhere, Category="CameraSpecs")
+	bool bZoomOut;
 
-	UPROPERTY(EditAnywhere, Category="CameraSpecs")
-	bool bZoomingIn;
+	/* Sets the Minimum Target Arm Length */
+	UPROPERTY(VisibleAnywhere, Category = "Camera Zoom")
+	float MinTargetLength;
+
+	/* Sets the Maximum Target Arm Length*/
+	UPROPERTY(VisibleAnywhere, Category = "Camera Zoom")
+	float MaxTargetLength;
+
+	/* Determines the number of units are added or subtracted from the target arm length*/
+	UPROPERTY(VisibleAnywhere, Category = "Camera Zoom")
+	float ZoomUnits;
+
+	/*How smooth the zoom will be (Higher less smooth, lower more smooth*/
+	UPROPERTY(VisibleAnywhere, Category = "Camera Zoom")
+	float ZoomSmoothness;
+
+	bool bIsOpen;
+
+private:
+
+	float DesiredArmLength;
 
 };
