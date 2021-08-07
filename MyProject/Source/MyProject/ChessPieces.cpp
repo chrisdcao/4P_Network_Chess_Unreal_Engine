@@ -18,19 +18,24 @@ AChessPieces::AChessPieces()
 	TArray<float> TeamColors;
 	// Default: RED color
 	TeamColors.Init(0.f, 3);
-
 /* 
-		 LERP COLOR CHART: [0][1][2]
+	4 DATA CHART 
+	[0],[1],[2]: the first 3 are fixed as LERP COLOR CHART, because we have set the Node 'Per Instance Custom Data' in Material to be first 3 indices
+	[3]:	    bFirstMove? default true (as it's start of the game)
+*/
+	TArray<float> FourDataPieces = { 0.f,0.f,0.f,1.f };	// default to RED color
+/* 
+		 LERP COLOR CHART
 		 * RED color:	 0, 0, 0
 		 * BLUE color:	 1, 0, 0
 		 * GREEN color:	 0, 0, 1
 		 * YELLOW color: 0, 1, 1
  */
-
 	 /* PAWN */
 	ISM_Pawn = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ISM_Pawn"));
 	SetRootComponent(ISM_Pawn);
-	ISM_Pawn->NumCustomDataFloats = 3;
+	// NOTE: the 4th value will be for the first move boolean, the first 3 are for the colors
+	ISM_Pawn->NumCustomDataFloats = 4;
 	// ISM_Pawn->SetMobility(EComponentMobility::Static);
 	// ISM_Pawn->SetCollisionProfileName("BlockAll");
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>PawnMeshAsset(TEXT("StaticMesh'/Game/ChessPieces/SM_Pawn.SM_Pawn'"));
@@ -93,12 +98,14 @@ AChessPieces::AChessPieces()
 	x = 600.f; y = 1400.f;
 	for (int i = 0; i < 8; i++) {
 		ISM_Pawn->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
+		ISM_Pawn->SetCustomData(i, FourDataPieces, false);
 		y += 400;
 	}
 	/* ROOK */
 	x = 200.f; y = 1400.f;
 	for (int i = 0; i < 2; i++) {
 		ISM_Rook->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
+		ISM_Rook->SetCustomData(i, FourDataPieces, false);
 		y += 2800.f;
 	}
 	/* KNIGHT */
@@ -119,103 +126,110 @@ AChessPieces::AChessPieces()
 	/* KING */
 	x = 200.f; y = 3000.f;
 	ISM_King->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
+	ISM_King->SetCustomData(0, FourDataPieces, false);
 
 
 	// TOP - Player 
 	TeamColors[0] = 1.f;	// BLUE
+	FourDataPieces[0] = 1.f;
 	/* PAWN */
 	x = 5000.f; y = 1400.f;
 	for (int i = 8; i < 16; i++) {
 		ISM_Pawn->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Pawn->SetCustomData(i, TeamColors, true);
+		ISM_Pawn->SetCustomData(i, FourDataPieces, false);
 		y += 400;
 	}
 	/* ROOK */
 	x = 5400.f; y = 1400.f;
 	for (int i = 2; i < 4; i++) {
 		ISM_Rook->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Rook->SetCustomData(i, TeamColors, true);
+		ISM_Rook->SetCustomData(i, FourDataPieces, false);
 		y += 2800.f;
 	}
 	/* KNIGHT */
 	x = 5400.f; y = 1800.f;
 	for (int i = 2; i < 4; i++) {
 		ISM_Knight->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Knight->SetCustomData(i, TeamColors, true);
+		ISM_Knight->SetCustomData(i, TeamColors, false);
 		y += 2000.f;
 	}
 	/* BISHOP */
 	x = 5400.f; y = 2200.f;
 	for (int i = 2; i < 4; i++) {
 		ISM_Bishop->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Bishop->SetCustomData(i, TeamColors, true);
+		ISM_Bishop->SetCustomData(i, TeamColors, false);
 		y += 1200.f;
 	}
 	/* QUEEN */
 	x = 5400.f; y = 3000.f;
 	ISM_Queen->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
-	ISM_Queen->SetCustomData(1, TeamColors, true);
+	ISM_Queen->SetCustomData(1, TeamColors, false);
 	/* KING */
 	x = 5400.f; y = 2600.f;
 	ISM_King->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
-	ISM_King->SetCustomData(1, TeamColors, true);
+	ISM_King->SetCustomData(1, FourDataPieces, false);
 
 
 	// LEFT - Player 
 	TeamColors[0] = 0.f;	// GREEN
 	TeamColors[2] = 1.f;	// 
+	FourDataPieces[0] = 0.f;	// GREEN
+	FourDataPieces[2] = 1.f;	// 
 	/* PAWN */
 	x = 1400.f; y = 600.f;
 	for (int i = 16; i < 24; i++) {
 		ISM_Pawn->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Pawn->SetCustomData(i, TeamColors, true);
+		ISM_Pawn->SetCustomData(i, FourDataPieces, false);
 		x += 400;
 	}
 	/* ROOK */
 	x = 1400.f; y = 200.f;
 	for (int i = 4; i < 6; i++) {
 		ISM_Rook->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Rook->SetCustomData(i, TeamColors, true);
+		ISM_Rook->SetCustomData(i, FourDataPieces, false);
 		x += 2800.f;
 	}
 	/* KNIGHT */
 	x = 1800.f; y = 200.f;
 	for (int i = 4; i < 6; i++) {
 		ISM_Knight->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Knight->SetCustomData(i, TeamColors, true);
+		ISM_Knight->SetCustomData(i, TeamColors, false);
 		x += 2000.f;
 	}
 	/* BISHOP */
 	x = 2200.f; y = 200.f;
 	for (int i = 4; i < 6; i++) {
 		ISM_Bishop->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Bishop->SetCustomData(i, TeamColors, true);
+		ISM_Bishop->SetCustomData(i, TeamColors, false);
 		x += 1200.f;
 	}
 	/* QUEEN */
 	x = 2600.f; y = 200.f;
 	ISM_Queen->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
-	ISM_Queen->SetCustomData(2, TeamColors, true);
+	ISM_Queen->SetCustomData(2, TeamColors, false);
 	/* KING */
 	x = 3000.f; y = 200.f;
 	ISM_King->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
-	ISM_King->SetCustomData(2, TeamColors, true);
+	ISM_King->SetCustomData(2, FourDataPieces, false);
 
 
 	// RIGHT - Player
 	TeamColors[1] = 1.f;	// YELLOW
+	FourDataPieces[1] = 1.f;	// YELLOW
 	/* PAWN */
 	x = 1400.f; y = 5000.f;
-	for (int i = 24; i < 32; i++) {
+	for (int i = 24; i < 31; i++) {
 		ISM_Pawn->AddInstanceWorldSpace(FTransform(FRotator(0.f,-90.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Pawn->SetCustomData(i, TeamColors, true);
+		ISM_Pawn->SetCustomData(i, FourDataPieces, false);
 		x += 400;
 	}
+	ISM_Pawn->AddInstanceWorldSpace(FTransform(FRotator(0.f,-90.f,0.f),FVector(x, y, z),FVector(1.f)));
+	ISM_Pawn->SetCustomData(31, FourDataPieces, true);
 	/* ROOK */
 	x = 1400.f; y = 5400.f;
 	for (int i = 6; i < 8; i++) {
 		ISM_Rook->AddInstanceWorldSpace(FTransform(FRotator(0.f,-90.f,0.f),FVector(x, y, z),FVector(1.f)));
-		ISM_Rook->SetCustomData(i, TeamColors, true);
+		ISM_Rook->SetCustomData(i, FourDataPieces, true);
 		x += 2800.f;
 	}
 	/* KNIGHT */
@@ -239,7 +253,7 @@ AChessPieces::AChessPieces()
 	/* KING */
 	x = 2600.f; y = 5400.f;
 	ISM_King->AddInstanceWorldSpace(FTransform(FRotator(0.f,-90.f,0.f),FVector(x, y, z),FVector(1.f)));
-	ISM_King->SetCustomData(3, TeamColors, true);
+	ISM_King->SetCustomData(3, FourDataPieces, true);
 
 }
 

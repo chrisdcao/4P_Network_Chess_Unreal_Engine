@@ -35,8 +35,8 @@ ACustomPawn::ACustomPawn()
 
 	// SmoothZoom Defaults -- Change inside of your BP where the actor component is located
 	DesiredArmLength = SpringArmComp->TargetArmLength;
-	MinTargetLength = 150.0f;
-	MaxTargetLength = 2000.0f;
+	MinTargetLength = 300.0f;
+	MaxTargetLength = 4000.0f;
 	ZoomUnits = 150.0f;
 	ZoomSmoothness = 9.0f;
 	// Gate Logic Boolean
@@ -147,14 +147,14 @@ void ACustomPawn::Tick(float DeltaTime)
     //Rotate our actor's yaw, which will turn our camera because we're attached to it
     {
         FRotator NewRotation = GetActorRotation();
-        NewRotation.Yaw += CameraInput.X * 2;
+        NewRotation.Yaw += CameraInput.X;
         SetActorRotation(NewRotation);
     }
 
     //Rotate our camera's pitch, but limit it so we're always looking downward
     {
         FRotator NewRotation = SpringArmComp->GetComponentRotation();
-        NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + CameraInput.Y * 2, -80.0f, -15.0f);
+        NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + CameraInput.Y, -80.0f, -15.0f);
         SpringArmComp->SetWorldRotation(NewRotation);
     }
 
@@ -165,9 +165,9 @@ void ACustomPawn::Tick(float DeltaTime)
             //Scale our movement input axis values by 100 units per second
             MovementInput = MovementInput.GetSafeNormal() * 100.0f;
             FVector NewLocation = GetActorLocation();
-            NewLocation += GetActorForwardVector() * MovementInput.X * DeltaTime * 20;
-            NewLocation += GetActorRightVector() * MovementInput.Y * DeltaTime * 20;
-            NewLocation += GetActorUpVector() * MovementInput.Z * DeltaTime * 20;
+            NewLocation += GetActorForwardVector() * MovementInput.X * DeltaTime * 15;
+            NewLocation += GetActorRightVector() * MovementInput.Y * DeltaTime * 15;
+            NewLocation += GetActorUpVector() * MovementInput.Z * DeltaTime * 12;
             SetActorLocation(NewLocation);
         }
     }
