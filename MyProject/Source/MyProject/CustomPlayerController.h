@@ -60,34 +60,34 @@ public:
 	int32 XYToIndex(const int32& XValue, const int32& YValue);
 
 	UFUNCTION()
-	void exchange(const int32& index1, const int32& index2, TArray<int32> array);
+	void exchange(const int32& index1, const int32& index2, TArray<int32>& array);
 
 	// just consider change int32->int8 if possible on all the codes
 	UFUNCTION()
 	bool checkMate(const int32& playerIndex);
 
 	UFUNCTION()
-	FVector IndexToLocation(const int32& index);
+	FVector Index196ToLocation(const int32& index);
 
 	UFUNCTION()
 	bool isIndexValid(const int32& index);
 
 	// Validation of Click1
 	UFUNCTION()
-	bool isClick1P1IndexValid(const int32& hitIndex);
+	bool isClick1P1IndexValid(const int32& hitIndexOn196);
 
 	UFUNCTION()
-	bool isClick1P2IndexValid(const int32& hitIndex);
+	bool isClick1P2IndexValid(const int32& hitIndexOn196);
 
 	UFUNCTION()
-	bool isClick1P3IndexValid(const int32& hitIndex);
+	bool isClick1P3IndexValid(const int32& hitIndexOn196);
 
 	UFUNCTION()
-	bool isClick1P4IndexValid(const int32& hitIndex);
+	bool isClick1P4IndexValid(const int32& hitIndexOn196);
 
 	// Validation of Click2
 	UFUNCTION()
-	bool isClick2MoveIndexValid(const int32& hitIndex);
+	bool isClick2MoveIndexValid(const int32& hitIndexOn196);
 
 	// checking what kind of piece it's
 	UFUNCTION()
@@ -107,6 +107,18 @@ public:
 
 	UFUNCTION()
 	bool isKing(const int32& pieceValue);
+
+	UFUNCTION()
+	void makeMove(const int32& index1, const int32& index2);
+
+	UFUNCTION()
+	void moveToGraveyard(const int32& pieceValue, const int32& ISMTo196Index);
+
+	UFUNCTION()
+	int32 LeftThresholdOfIndex(const int32& index);
+
+	UFUNCTION()
+	int32 RightThresholdOfIndex(const int32& index);
 
 	//UFUNCTION()
 	//void SwitchPlayer();
@@ -158,7 +170,7 @@ public:
 	// We have to think of the real mechanics Array is SEPARATE from the Physical Board and Pieces
 	// So on each move we have to alter/change values of BOTH
 	TArray<int32> ChessBoardValues;
-	TArray<int32> ISMIndexMapOn196Board;
+	TArray<int32> Index196ToISMIndexPlusOne;
 	// HOLDS the indices of Movable Tiles
 	// TODO: Consider adding another array holding Our Team and Enemy Team MovableIndices differently for later CheckMate function
 	TArray<int32> MovableIndices;
@@ -193,8 +205,9 @@ private:
 	int32 Click2Value;
 	int32 ActiveIndex;
 	int32 clickCount;
-	int32 hitIndex1;
+	int32 hitIndexOn196_1;
 	bool bEnPassant;
+	int32 offlineCount;
 
 };
 

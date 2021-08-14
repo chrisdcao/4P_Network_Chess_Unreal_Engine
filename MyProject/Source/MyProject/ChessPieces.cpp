@@ -5,6 +5,7 @@
 
 #define OUT
 
+// REDO THIS CHESSPIECES USING NORMAL INSTANCES (INSTEAD OF INSTANCED STATIC MESH)
 // Sets default values
 AChessPieces::AChessPieces()
 {

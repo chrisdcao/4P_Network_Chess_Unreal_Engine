@@ -5,6 +5,7 @@
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
 
+/* THINK OF IMPLENTING ALL THE PRESSED AND RELEASE WITH GATE LOGIC, SO THAT WE CAN REMOVE TICK AND SEE IF THE PERFORMANCE IMPROVES */
 // Sets default values
 ACustomPawn::ACustomPawn()
 {
@@ -139,10 +140,10 @@ void ACustomPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!ensure(SpringArmComp)) return;
+	//if (!ensure(SpringArmComp)) return;
 
-	if (!FMath::IsNearlyEqual(SpringArmComp->TargetArmLength, DesiredArmLength, 0.5f)) 
-		SpringArmComp->TargetArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength, DesiredArmLength, DeltaTime, ZoomSmoothness);
+	//if (!FMath::IsNearlyEqual(SpringArmComp->TargetArmLength, DesiredArmLength, 0.5f)) 
+		//SpringArmComp->TargetArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength, DesiredArmLength, DeltaTime, ZoomSmoothness);
 
     //Rotate our actor's yaw, which will turn our camera because we're attached to it
     {
