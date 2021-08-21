@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Chessboard.h"
 #include "ChessPieces.h"
+#include "ParentActor.h"
+
 #include "CustomPlayerController.generated.h"
 
 /**
@@ -166,6 +168,15 @@ public:
 	//UFUNCTION()
 	//void GetMovableIndicesQueen(int32 pieceValue, FVector clickLocation, TArray<int32> MovableIndices); 
 
+	UFUNCTION()
+	void spawnBottomActors();
+	UFUNCTION()
+	void spawnLeftActors();
+	UFUNCTION()
+	void spawnTopActors();
+	UFUNCTION()
+	void spawnRightActors();
+
 	/************** MECHANIC ARRAYS **************/
 	// We have to think of the real mechanics Array is SEPARATE from the Physical Board and Pieces
 	// So on each move we have to alter/change values of BOTH
@@ -181,6 +192,7 @@ public:
 	TArray<int32> KingP4MovableIndices;
 
 
+
 	/************** PHYSICAL PROPERTIES **************/
 
 	// Chessboard
@@ -190,6 +202,8 @@ public:
 	// ChessPieces
 	UPROPERTY()
 	AChessPieces* Pieces;
+
+	TArray<AParentActor*> pieces;
 
 protected:
 
@@ -207,7 +221,7 @@ private:
 	int32 clickCount;
 	int32 hitIndexOn196_1;
 	bool bEnPassant;
-	int32 offlineCount;
+	int32 playerTurn;
 
 };
 

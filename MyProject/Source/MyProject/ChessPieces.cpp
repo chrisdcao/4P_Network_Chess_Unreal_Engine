@@ -7,6 +7,8 @@
 
 // REDO THIS CHESSPIECES USING NORMAL INSTANCES (INSTEAD OF INSTANCED STATIC MESH)
 // Sets default values
+// TODO: REMOVE ROTATION OF ROOK,PAWN, QUEEN, probably KING (NOT NEEDED)
+// TODO: TRY DOING THE CHESSPIECES AS AN ARRAY OF USTATICMESH INSTEAD OF ISM
 AChessPieces::AChessPieces()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -37,7 +39,7 @@ AChessPieces::AChessPieces()
 	SetRootComponent(ISM_Pawn);
 	// NOTE: the 4th value will be for the first move boolean, the first 3 are for the colors
 	ISM_Pawn->NumCustomDataFloats = 4;
-	// ISM_Pawn->SetMobility(EComponentMobility::Static);
+	ISM_Pawn->SetMobility(EComponentMobility::Movable);
 	// ISM_Pawn->SetCollisionProfileName("BlockAll");
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>PawnMeshAsset(TEXT("StaticMesh'/Game/ChessPieces/SM_Pawn.SM_Pawn'"));
 	ISM_Pawn->SetStaticMesh(PawnMeshAsset.Object);
@@ -136,14 +138,14 @@ AChessPieces::AChessPieces()
 	/* PAWN */
 	x = 5000.f; y = 1400.f;
 	for (int i = 8; i < 16; i++) {
-		ISM_Pawn->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
+		ISM_Pawn->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 		ISM_Pawn->SetCustomData(i, FourDataPieces, false);
 		y += 400;
 	}
 	/* ROOK */
 	x = 5400.f; y = 1400.f;
 	for (int i = 2; i < 4; i++) {
-		ISM_Rook->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
+		ISM_Rook->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 		ISM_Rook->SetCustomData(i, FourDataPieces, false);
 		y += 2800.f;
 	}
@@ -163,11 +165,11 @@ AChessPieces::AChessPieces()
 	}
 	/* QUEEN */
 	x = 5400.f; y = 3000.f;
-	ISM_Queen->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
+	ISM_Queen->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 	ISM_Queen->SetCustomData(1, TeamColors, false);
 	/* KING */
 	x = 5400.f; y = 2600.f;
-	ISM_King->AddInstanceWorldSpace(FTransform(FRotator(0.f,180.f,0.f),FVector(x, y, z),FVector(1.f)));
+	ISM_King->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 	ISM_King->SetCustomData(1, FourDataPieces, false);
 
 
@@ -179,14 +181,14 @@ AChessPieces::AChessPieces()
 	/* PAWN */
 	x = 1400.f; y = 600.f;
 	for (int i = 16; i < 24; i++) {
-		ISM_Pawn->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
+		ISM_Pawn->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 		ISM_Pawn->SetCustomData(i, FourDataPieces, false);
 		x += 400;
 	}
 	/* ROOK */
 	x = 1400.f; y = 200.f;
 	for (int i = 4; i < 6; i++) {
-		ISM_Rook->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
+		ISM_Rook->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 		ISM_Rook->SetCustomData(i, FourDataPieces, false);
 		x += 2800.f;
 	}
@@ -206,11 +208,11 @@ AChessPieces::AChessPieces()
 	}
 	/* QUEEN */
 	x = 2600.f; y = 200.f;
-	ISM_Queen->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
+	ISM_Queen->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 	ISM_Queen->SetCustomData(2, TeamColors, false);
 	/* KING */
 	x = 3000.f; y = 200.f;
-	ISM_King->AddInstanceWorldSpace(FTransform(FRotator(0.f,90.f,0.f),FVector(x, y, z),FVector(1.f)));
+	ISM_King->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 	ISM_King->SetCustomData(2, FourDataPieces, false);
 
 
@@ -220,16 +222,16 @@ AChessPieces::AChessPieces()
 	/* PAWN */
 	x = 1400.f; y = 5000.f;
 	for (int i = 24; i < 31; i++) {
-		ISM_Pawn->AddInstanceWorldSpace(FTransform(FRotator(0.f,-90.f,0.f),FVector(x, y, z),FVector(1.f)));
+		ISM_Pawn->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 		ISM_Pawn->SetCustomData(i, FourDataPieces, false);
 		x += 400;
 	}
-	ISM_Pawn->AddInstanceWorldSpace(FTransform(FRotator(0.f,-90.f,0.f),FVector(x, y, z),FVector(1.f)));
+	ISM_Pawn->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 	ISM_Pawn->SetCustomData(31, FourDataPieces, true);
 	/* ROOK */
 	x = 1400.f; y = 5400.f;
 	for (int i = 6; i < 8; i++) {
-		ISM_Rook->AddInstanceWorldSpace(FTransform(FRotator(0.f,-90.f,0.f),FVector(x, y, z),FVector(1.f)));
+		ISM_Rook->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 		ISM_Rook->SetCustomData(i, FourDataPieces, true);
 		x += 2800.f;
 	}
@@ -249,11 +251,11 @@ AChessPieces::AChessPieces()
 	}
 	/* QUEEN */
 	x = 3000.f; y = 5400.f;
-	ISM_Queen->AddInstanceWorldSpace(FTransform(FRotator(0.f,-90.f,0.f),FVector(x, y, z),FVector(1.f)));
+	ISM_Queen->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 	ISM_Queen->SetCustomData(3, TeamColors, true);
 	/* KING */
 	x = 2600.f; y = 5400.f;
-	ISM_King->AddInstanceWorldSpace(FTransform(FRotator(0.f,-90.f,0.f),FVector(x, y, z),FVector(1.f)));
+	ISM_King->AddInstanceWorldSpace(FTransform(FVector(x, y, z)));
 	ISM_King->SetCustomData(3, FourDataPieces, true);
 
 }

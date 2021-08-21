@@ -4,6 +4,13 @@
 #include "CustomPlayerController.h"
 #include "ChessBoard.h"
 #include "ChessPieces.h"
+#include "RookActor.h"
+#include "KnightActor.h"
+#include "BishopActor.h"
+#include "KingActor.h"
+#include "QueenActor.h"
+#include "PawnActor.h"
+#include "ParentActor.h"
 #include <algorithm>
 
 #define OUT
@@ -21,7 +28,7 @@ ACustomPlayerController::ACustomPlayerController()
 	bEnableTouchEvents = false;
 	bEnableTouchOverEvents = false;
 
-	offlineCount = 1;
+	playerTurn = 1;
 	Board = nullptr;
 	Pieces = nullptr;
 	clickCount = 0;
@@ -94,192 +101,597 @@ void ACustomPlayerController::OnLeftMouseClick()
 	GetHitResultUnderCursor(ECollisionChannel::ECC_WorldDynamic, true, OUT TraceResult);
 	FVector hitLocation = TraceResult.Location;
 
-	// the events happening in Click1
-	if (clickCount == 0) 
+	if (playerTurn == 1)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Left mouse click 1 is triggered!"));
-		UE_LOG(LogTemp, Warning, TEXT("current clickCount is %d"), clickCount);
-		//if (player1) 
+		// the events happening in Click1
+		if (clickCount == 0)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 1 is triggered!"));
+			UE_LOG(LogTemp, Warning, TEXT("current clickCount is %d"), clickCount);
+
 			hitIndexOn196_1 = LocationToIndex(hitLocation);
+			// TODO: make this 4 players 
 			if (!isClick1P1IndexValid(hitIndexOn196_1)) return;
-		} 
-/* 
-		//if (player2) 
-		{
-			hitLocation = TraceResult.Location;
-			hitIndexOn196_1 = LocationToIndex(hitLocation);
-			if (!isClick1P2IndexValid(hitIndexOn196_1)) return;
-		} 
-		//if (player3) 
-		{
-			hitLocation = TraceResult.Location;
-			hitIndexOn196_1 = LocationToIndex(hitLocation);
-			if (!isClick1P3IndexValid(hitIndexOn196_1)) return;
-		} 
-		//if (player4) 
-		{
-			hitLocation = TraceResult.Location;
-			hitIndexOn196_1 = LocationToIndex(hitLocation);
-			if (!isClick1P4IndexValid(hitIndexOn196_1)) return;
-		} 
-*/
-		clickCount = 1;
-		const int32 hitValue1 = ChessBoardValues[hitIndexOn196_1];
-		int32 startStorageIndex = 0;
-		HighlightSelectedTileByIndex(hitIndexOn196_1);
 
-		UE_LOG(LogTemp, Warning, TEXT("Hit Value is %d!"), ChessBoardValues[hitIndexOn196_1]);
-		UE_LOG(LogTemp, Warning, TEXT("Hit Index is %d!"), hitIndexOn196_1);
-		if (isPawn(hitValue1)) 
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
-			GetMovableIndicesPawn(startStorageIndex, hitLocation);
-			HighlightMovableIndices(0);
-		}
-		else if (isRook(hitValue1)) 
-		{
-			GetMovableIndicesRook(startStorageIndex, hitLocation);
-			HighlightMovableIndices(0);
-		}
-		else if (isKnight(hitValue1)) 
-		{
-			GetMovableIndicesKnight(startStorageIndex, hitLocation);
-			HighlightMovableIndices(0);
-		}
-		else if (isBishop(hitValue1)) 
-		{
-			GetMovableIndicesBishop(startStorageIndex, hitLocation);
-			HighlightMovableIndices(0);
-		}
-		else if (isQueen(hitValue1)) 
-		{
-			GetMovableIndicesQueen(startStorageIndex, hitLocation);
-			HighlightMovableIndices(0);
-		}
-		else if (isKing(hitValue1))  
-		{
-			GetMovableIndicesKing(startStorageIndex, hitLocation);
-			HighlightMovableIndices(0);
-		}
-		return;
-	}
+			clickCount = 1;
+			const int32 hitValue1 = ChessBoardValues[hitIndexOn196_1];
+			int32 startStorageIndex = 0;
+			HighlightSelectedTileByIndex(hitIndexOn196_1);
 
-	// TODO: MIGHT HAVE TO CHANGE THE CONDITION CHECKING OF CLICK1 AND CLICK2 TO EXCLUDE 0 AND MAKE IT A SEPARATE CHECK
-	///TODO: CHECK IF INDEX IS THE SAME, if the same then we repeat 1 + unhighlight the last selected
-	// the events happening in click 2
-	int32 hitIndexOn196_2;
-	if (clickCount == 1) 
-	{ 
-		hitIndexOn196_2 = LocationToIndex(hitLocation);
-		UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is triggered!"));
-		UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is at index: %d!"), hitIndexOn196_2);
-		// just added to return immediately if still click on the same place
-		// WE CAN MERGE THIS TO THE BELOW IF WE WANT
-		if (hitIndexOn196_2 == hitIndexOn196_1) return;
-		// THERE ARE 2 POSSIBILITIES IF HITINDEXON196_2 IS NOT VALID
-		if (!isClick2MoveIndexValid(hitIndexOn196_2)) 
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is not valid at %d with value %d!"), hitIndexOn196_2, ChessBoardValues[hitIndexOn196_2]);
-			for (int i = 0; i < ActiveIndex; i++)
-				UE_LOG(LogTemp, Warning, TEXT("Movable indices at %d contains index: %d!"), i, MovableIndices[i]);
-			// if it's the  player click again on one of his piece(which means click1 is valid), we cast it back to click1
-			// 1.CLICKING ON ANOTHER PIECE OF OUR SIDE
-			if (isClick1P1IndexValid(hitIndexOn196_2)) 
+			UE_LOG(LogTemp, Warning, TEXT("Hit Value is %d!"), ChessBoardValues[hitIndexOn196_1]);
+			UE_LOG(LogTemp, Warning, TEXT("Hit Index is %d!"), hitIndexOn196_1);
+			if (isPawn(hitValue1))
 			{
-				//DEBUG
-				UE_LOG(LogTemp,Warning,TEXT("Cast back to click1 from click2"));
-				// unhighlight all the past highlighted tiles
-				for (int i = 0; i < ActiveIndex; i++) 
-					UnhighlightTileByIndex(MovableIndices[i], false);
-				UnhighlightTileByIndex(hitIndexOn196_1, true);
-				// just assign hitIndex1 <- hitIndex2, as we re-select and see this as click1 again, waiting for click2
-				hitIndexOn196_1 = hitIndexOn196_2;
+				UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
+				GetMovableIndicesPawn(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isRook(hitValue1))
+			{
+				GetMovableIndicesRook(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isKnight(hitValue1))
+			{
+				GetMovableIndicesKnight(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isBishop(hitValue1))
+			{
+				GetMovableIndicesBishop(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isQueen(hitValue1))
+			{
+				GetMovableIndicesQueen(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isKing(hitValue1))
+			{
+				GetMovableIndicesKing(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			return;
+		}
 
-				// recalculate and re-highlight all the stuffs just like click1
-				const int32 hitValue2 = ChessBoardValues[hitIndexOn196_2];
-				HighlightSelectedTileByIndex(hitIndexOn196_2);
-				int32 startStorageIndex = 0;
+		// TODO: MIGHT HAVE TO CHANGE THE CONDITION CHECKING OF CLICK1 AND CLICK2 TO EXCLUDE 0 AND MAKE IT A SEPARATE CHECK
+		///TODO: CHECK IF INDEX IS THE SAME, if the same then we repeat 1 + unhighlight the last selected
+		// the events happening in click 2
+		int32 hitIndexOn196_2;
+		if (clickCount == 1)
+		{
+			hitIndexOn196_2 = LocationToIndex(hitLocation);
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is triggered!"));
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is at index: %d!"), hitIndexOn196_2);
+			// just added to return immediately if still click on the same place
+			// WE CAN MERGE THIS TO THE BELOW IF WE WANT
+			if (hitIndexOn196_2 == hitIndexOn196_1) return;
+			// THERE ARE 2 POSSIBILITIES IF HITINDEXON196_2 IS NOT VALID
+			if (!isClick2MoveIndexValid(hitIndexOn196_2))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is not valid at %d with value %d!"), hitIndexOn196_2, ChessBoardValues[hitIndexOn196_2]);
+				for (int i = 0; i < ActiveIndex; i++)
+					UE_LOG(LogTemp, Warning, TEXT("Movable indices at %d contains index: %d!"), i, MovableIndices[i]);
+				// if it's the  player click again on one of his piece(which means click1 is valid), we cast it back to click1
+				// 1.CLICKING ON ANOTHER PIECE OF OUR SIDE
+				if (isClick1P1IndexValid(hitIndexOn196_2))
+				{
+					//DEBUG
+					UE_LOG(LogTemp, Warning, TEXT("Cast back to click1 from click2"));
+					// unhighlight all the past highlighted tiles
+					for (int i = 0; i < ActiveIndex; i++)
+						UnhighlightTileByIndex(MovableIndices[i], false);
+					UnhighlightTileByIndex(hitIndexOn196_1, true);
+					// just assign hitIndex1 <- hitIndex2, as we re-select and see this as click1 again, waiting for click2
+					hitIndexOn196_1 = hitIndexOn196_2;
 
-				if (isPawn(hitValue2)) 
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
-					GetMovableIndicesPawn(startStorageIndex, hitLocation);
-					HighlightMovableIndices(0);
-				} 
-				else if (isRook(hitValue2)) 
-				{
-					GetMovableIndicesRook(startStorageIndex, hitLocation);
-					HighlightMovableIndices(0);
-				} 
-				else if (isKnight(hitValue2)) 
-				{
-					GetMovableIndicesKnight(startStorageIndex, hitLocation);
-					HighlightMovableIndices(0);
-				} 
-				else if (isBishop(hitValue2)) 
-				{
-					GetMovableIndicesBishop(startStorageIndex, hitLocation);
-					HighlightMovableIndices(0);
-				} 
-				else if (isQueen(hitValue2)) 
-				{
-					GetMovableIndicesQueen(startStorageIndex, hitLocation);
-					HighlightMovableIndices(0);
-				} 
-				else if (isKing(hitValue2)) 
-				{
-					GetMovableIndicesKing(startStorageIndex, hitLocation);
-					HighlightMovableIndices(0);
+					// recalculate and re-highlight all the stuffs just like click1
+					const int32 hitValue2 = ChessBoardValues[hitIndexOn196_2];
+					HighlightSelectedTileByIndex(hitIndexOn196_2);
+					int32 startStorageIndex = 0;
+
+					if (isPawn(hitValue2))
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
+						GetMovableIndicesPawn(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isRook(hitValue2))
+					{
+						GetMovableIndicesRook(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isKnight(hitValue2))
+					{
+						GetMovableIndicesKnight(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isBishop(hitValue2))
+					{
+						GetMovableIndicesBishop(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isQueen(hitValue2))
+					{
+						GetMovableIndicesQueen(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isKing(hitValue2))
+					{
+						GetMovableIndicesKing(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
 				}
 			}
+			else
+			{
+				// since we have escaped the first condition, the following will be ...
+				// else:
+				// change clickCount to 0;
+				// updateTransform location of instance[index1] to location of [index2]
+				// if hitIndexOn196_2 have piece on it (value != 0) -> update location of piece to graveyard +  set that ChessboardValue[index] == 0 && set ISMMapOn196 to -1
+				// unhighlight selectedTile + movableTiles
+				// TODO: check if the new position of this piece is checking the enemy
+				// TODO: check if the new position of this piece is exposing our King to the enemy (being checked)
+				clickCount = 0;
+
+				// TODO: if the chessBoardValues at the index we're about to move in != 0, move the piece to graveyard location
+				if (ChessBoardValues[hitIndexOn196_2] != 0)
+					moveToGraveyard(ChessBoardValues[hitIndexOn196_2], hitIndexOn196_2);
+
+				makeMove(hitIndexOn196_1, hitIndexOn196_2);
+			}
 		}
-		else
+	}
+	else if (playerTurn == 2)
+	{
+		// the events happening in Click1
+		if (clickCount == 0)
 		{
-			// since we have escaped the first condition, the following will be ...
-			// else:
-			// change clickCount to 0;
-			// updateTransform location of instance[index1] to location of [index2]
-			// if hitIndexOn196_2 have piece on it (value != 0) -> update location of piece to graveyard +  set that ChessboardValue[index] == 0 && set ISMMapOn196 to -1
-			// unhighlight selectedTile + movableTiles
-			// TODO: check if the new position of this piece is checking the enemy
-			// TODO: check if the new position of this piece is exposing our King to the enemy (being checked)
-			clickCount = 0;
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 1 is triggered!"));
+			UE_LOG(LogTemp, Warning, TEXT("current clickCount is %d"), clickCount);
 
-			// TODO: if the chessBoardValues at the index we're about to move in != 0, move the piece to graveyard location
-			if (ChessBoardValues[hitIndexOn196_2] != 0)  
-				moveToGraveyard(ChessBoardValues[hitIndexOn196_2], hitIndexOn196_2);
+			hitIndexOn196_1 = LocationToIndex(hitLocation);
+			// TODO: make this 4 players 
+			if (!isClick1P2IndexValid(hitIndexOn196_1)) return;
 
-			makeMove(hitIndexOn196_1, hitIndexOn196_2);
+			clickCount = 1;
+			const int32 hitValue1 = ChessBoardValues[hitIndexOn196_1];
+			int32 startStorageIndex = 0;
+			HighlightSelectedTileByIndex(hitIndexOn196_1);
+
+			UE_LOG(LogTemp, Warning, TEXT("Hit Value is %d!"), ChessBoardValues[hitIndexOn196_1]);
+			UE_LOG(LogTemp, Warning, TEXT("Hit Index is %d!"), hitIndexOn196_1);
+			if (isPawn(hitValue1))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
+				GetMovableIndicesPawn(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isRook(hitValue1))
+			{
+				GetMovableIndicesRook(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isKnight(hitValue1))
+			{
+				GetMovableIndicesKnight(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isBishop(hitValue1))
+			{
+				GetMovableIndicesBishop(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isQueen(hitValue1))
+			{
+				GetMovableIndicesQueen(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isKing(hitValue1))
+			{
+				GetMovableIndicesKing(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			return;
+		}
+
+		// TODO: MIGHT HAVE TO CHANGE THE CONDITION CHECKING OF CLICK1 AND CLICK2 TO EXCLUDE 0 AND MAKE IT A SEPARATE CHECK
+		///TODO: CHECK IF INDEX IS THE SAME, if the same then we repeat 1 + unhighlight the last selected
+		// the events happening in click 2
+		int32 hitIndexOn196_2;
+		if (clickCount == 1)
+		{
+			hitIndexOn196_2 = LocationToIndex(hitLocation);
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is triggered!"));
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is at index: %d!"), hitIndexOn196_2);
+			// just added to return immediately if still click on the same place
+			// WE CAN MERGE THIS TO THE BELOW IF WE WANT
+			if (hitIndexOn196_2 == hitIndexOn196_1) return;
+			// THERE ARE 2 POSSIBILITIES IF HITINDEXON196_2 IS NOT VALID
+			if (!isClick2MoveIndexValid(hitIndexOn196_2))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is not valid at %d with value %d!"), hitIndexOn196_2, ChessBoardValues[hitIndexOn196_2]);
+				for (int i = 0; i < ActiveIndex; i++)
+					UE_LOG(LogTemp, Warning, TEXT("Movable indices at %d contains index: %d!"), i, MovableIndices[i]);
+				// if it's the  player click again on one of his piece(which means click1 is valid), we cast it back to click1
+				// 1.CLICKING ON ANOTHER PIECE OF OUR SIDE
+				if (isClick1P2IndexValid(hitIndexOn196_2))
+				{
+					//DEBUG
+					UE_LOG(LogTemp, Warning, TEXT("Cast back to click1 from click2"));
+					// unhighlight all the past highlighted tiles
+					for (int i = 0; i < ActiveIndex; i++)
+						UnhighlightTileByIndex(MovableIndices[i], false);
+					UnhighlightTileByIndex(hitIndexOn196_1, true);
+					// just assign hitIndex1 <- hitIndex2, as we re-select and see this as click1 again, waiting for click2
+					hitIndexOn196_1 = hitIndexOn196_2;
+
+					// recalculate and re-highlight all the stuffs just like click1
+					const int32 hitValue2 = ChessBoardValues[hitIndexOn196_2];
+					HighlightSelectedTileByIndex(hitIndexOn196_2);
+					int32 startStorageIndex = 0;
+
+					if (isPawn(hitValue2))
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
+						GetMovableIndicesPawn(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isRook(hitValue2))
+					{
+						GetMovableIndicesRook(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isKnight(hitValue2))
+					{
+						GetMovableIndicesKnight(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isBishop(hitValue2))
+					{
+						GetMovableIndicesBishop(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isQueen(hitValue2))
+					{
+						GetMovableIndicesQueen(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isKing(hitValue2))
+					{
+						GetMovableIndicesKing(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+				}
+			}
+			else
+			{
+				// since we have escaped the first condition, the following will be ...
+				// else:
+				// change clickCount to 0;
+				// updateTransform location of instance[index1] to location of [index2]
+				// if hitIndexOn196_2 have piece on it (value != 0) -> update location of piece to graveyard +  set that ChessboardValue[index] == 0 && set ISMMapOn196 to -1
+				// unhighlight selectedTile + movableTiles
+				// TODO: check if the new position of this piece is checking the enemy
+				// TODO: check if the new position of this piece is exposing our King to the enemy (being checked)
+				clickCount = 0;
+
+				// TODO: if the chessBoardValues at the index we're about to move in != 0, move the piece to graveyard location
+				if (ChessBoardValues[hitIndexOn196_2] != 0)
+					moveToGraveyard(ChessBoardValues[hitIndexOn196_2], hitIndexOn196_2);
+
+				makeMove(hitIndexOn196_1, hitIndexOn196_2);
+			}
+		}
+	}
+	else if (playerTurn == 3)
+	{
+		// the events happening in Click1
+		if (clickCount == 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 1 is triggered!"));
+			UE_LOG(LogTemp, Warning, TEXT("current clickCount is %d"), clickCount);
+
+			hitIndexOn196_1 = LocationToIndex(hitLocation);
+			if (!isClick1P3IndexValid(hitIndexOn196_1)) return;
+
+			clickCount = 1;
+			const int32 hitValue1 = ChessBoardValues[hitIndexOn196_1];
+			int32 startStorageIndex = 0;
+			HighlightSelectedTileByIndex(hitIndexOn196_1);
+
+			UE_LOG(LogTemp, Warning, TEXT("Hit Value is %d!"), ChessBoardValues[hitIndexOn196_1]);
+			UE_LOG(LogTemp, Warning, TEXT("Hit Index is %d!"), hitIndexOn196_1);
+			if (isPawn(hitValue1))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
+				GetMovableIndicesPawn(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isRook(hitValue1))
+			{
+				GetMovableIndicesRook(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isKnight(hitValue1))
+			{
+				GetMovableIndicesKnight(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isBishop(hitValue1))
+			{
+				GetMovableIndicesBishop(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isQueen(hitValue1))
+			{
+				GetMovableIndicesQueen(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isKing(hitValue1))
+			{
+				GetMovableIndicesKing(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			return;
+		}
+
+		// TODO: MIGHT HAVE TO CHANGE THE CONDITION CHECKING OF CLICK1 AND CLICK2 TO EXCLUDE 0 AND MAKE IT A SEPARATE CHECK
+		///TODO: CHECK IF INDEX IS THE SAME, if the same then we repeat 1 + unhighlight the last selected
+		// the events happening in click 2
+		int32 hitIndexOn196_2;
+		if (clickCount == 1)
+		{
+			hitIndexOn196_2 = LocationToIndex(hitLocation);
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is triggered!"));
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is at index: %d!"), hitIndexOn196_2);
+			// just added to return immediately if still click on the same place
+			// WE CAN MERGE THIS TO THE BELOW IF WE WANT
+			if (hitIndexOn196_2 == hitIndexOn196_1) return;
+			// THERE ARE 2 POSSIBILITIES IF HITINDEXON196_2 IS NOT VALID
+			if (!isClick2MoveIndexValid(hitIndexOn196_2))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is not valid at %d with value %d!"), hitIndexOn196_2, ChessBoardValues[hitIndexOn196_2]);
+				for (int i = 0; i < ActiveIndex; i++)
+					UE_LOG(LogTemp, Warning, TEXT("Movable indices at %d contains index: %d!"), i, MovableIndices[i]);
+				// if it's the  player click again on one of his piece(which means click1 is valid), we cast it back to click1
+				// 1.CLICKING ON ANOTHER PIECE OF OUR SIDE
+				if (isClick1P3IndexValid(hitIndexOn196_2))
+				{
+					//DEBUG
+					UE_LOG(LogTemp, Warning, TEXT("Cast back to click1 from click2"));
+					// unhighlight all the past highlighted tiles
+					for (int i = 0; i < ActiveIndex; i++)
+						UnhighlightTileByIndex(MovableIndices[i], false);
+					UnhighlightTileByIndex(hitIndexOn196_1, true);
+					// just assign hitIndex1 <- hitIndex2, as we re-select and see this as click1 again, waiting for click2
+					hitIndexOn196_1 = hitIndexOn196_2;
+
+					// recalculate and re-highlight all the stuffs just like click1
+					const int32 hitValue2 = ChessBoardValues[hitIndexOn196_2];
+					HighlightSelectedTileByIndex(hitIndexOn196_2);
+					int32 startStorageIndex = 0;
+
+					if (isPawn(hitValue2))
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
+						GetMovableIndicesPawn(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isRook(hitValue2))
+					{
+						GetMovableIndicesRook(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isKnight(hitValue2))
+					{
+						GetMovableIndicesKnight(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isBishop(hitValue2))
+					{
+						GetMovableIndicesBishop(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isQueen(hitValue2))
+					{
+						GetMovableIndicesQueen(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isKing(hitValue2))
+					{
+						GetMovableIndicesKing(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+				}
+			}
+			else
+			{
+				// since we have escaped the first condition, the following will be ...
+				// else:
+				// change clickCount to 0;
+				// updateTransform location of instance[index1] to location of [index2]
+				// if hitIndexOn196_2 have piece on it (value != 0) -> update location of piece to graveyard +  set that ChessboardValue[index] == 0 && set ISMMapOn196 to -1
+				// unhighlight selectedTile + movableTiles
+				// TODO: check if the new position of this piece is checking the enemy
+				// TODO: check if the new position of this piece is exposing our King to the enemy (being checked)
+				clickCount = 0;
+
+				// TODO: if the chessBoardValues at the index we're about to move in != 0, move the piece to graveyard location
+				if (ChessBoardValues[hitIndexOn196_2] != 0)
+					moveToGraveyard(ChessBoardValues[hitIndexOn196_2], hitIndexOn196_2);
+
+				makeMove(hitIndexOn196_1, hitIndexOn196_2);
+			}
+		}
+	}
+	else if (playerTurn == 4)
+	{
+		// the events happening in Click1
+		if (clickCount == 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 1 is triggered!"));
+			UE_LOG(LogTemp, Warning, TEXT("current clickCount is %d"), clickCount);
+
+			hitIndexOn196_1 = LocationToIndex(hitLocation);
+			if (!isClick1P4IndexValid(hitIndexOn196_1)) return;
+
+			clickCount = 1;
+			const int32 hitValue1 = ChessBoardValues[hitIndexOn196_1];
+			int32 startStorageIndex = 0;
+			HighlightSelectedTileByIndex(hitIndexOn196_1);
+
+			UE_LOG(LogTemp, Warning, TEXT("Hit Value is %d!"), ChessBoardValues[hitIndexOn196_1]);
+			UE_LOG(LogTemp, Warning, TEXT("Hit Index is %d!"), hitIndexOn196_1);
+			if (isPawn(hitValue1))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
+				GetMovableIndicesPawn(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isRook(hitValue1))
+			{
+				GetMovableIndicesRook(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isKnight(hitValue1))
+			{
+				GetMovableIndicesKnight(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isBishop(hitValue1))
+			{
+				GetMovableIndicesBishop(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isQueen(hitValue1))
+			{
+				GetMovableIndicesQueen(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			else if (isKing(hitValue1))
+			{
+				GetMovableIndicesKing(startStorageIndex, hitLocation);
+				HighlightMovableIndices(0);
+			}
+			return;
+		}
+
+		// TODO: MIGHT HAVE TO CHANGE THE CONDITION CHECKING OF CLICK1 AND CLICK2 TO EXCLUDE 0 AND MAKE IT A SEPARATE CHECK
+		///TODO: CHECK IF INDEX IS THE SAME, if the same then we repeat 1 + unhighlight the last selected
+		// the events happening in click 2
+		int32 hitIndexOn196_2;
+		if (clickCount == 1)
+		{
+			hitIndexOn196_2 = LocationToIndex(hitLocation);
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is triggered!"));
+			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is at index: %d!"), hitIndexOn196_2);
+			// just added to return immediately if still click on the same place
+			// WE CAN MERGE THIS TO THE BELOW IF WE WANT
+			if (hitIndexOn196_2 == hitIndexOn196_1) return;
+			// THERE ARE 2 POSSIBILITIES IF HITINDEXON196_2 IS NOT VALID
+			if (!isClick2MoveIndexValid(hitIndexOn196_2))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is not valid at %d with value %d!"), hitIndexOn196_2, ChessBoardValues[hitIndexOn196_2]);
+				for (int i = 0; i < ActiveIndex; i++)
+					UE_LOG(LogTemp, Warning, TEXT("Movable indices at %d contains index: %d!"), i, MovableIndices[i]);
+				// if it's the  player click again on one of his piece(which means click1 is valid), we cast it back to click1
+				// 1.CLICKING ON ANOTHER PIECE OF OUR SIDE
+				if (isClick1P4IndexValid(hitIndexOn196_2))
+				{
+					//DEBUG
+					UE_LOG(LogTemp, Warning, TEXT("Cast back to click1 from click2"));
+					// unhighlight all the past highlighted tiles
+					for (int i = 0; i < ActiveIndex; i++)
+						UnhighlightTileByIndex(MovableIndices[i], false);
+					UnhighlightTileByIndex(hitIndexOn196_1, true);
+					// just assign hitIndex1 <- hitIndex2, as we re-select and see this as click1 again, waiting for click2
+					hitIndexOn196_1 = hitIndexOn196_2;
+
+					// recalculate and re-highlight all the stuffs just like click1
+					const int32 hitValue2 = ChessBoardValues[hitIndexOn196_2];
+					HighlightSelectedTileByIndex(hitIndexOn196_2);
+					int32 startStorageIndex = 0;
+
+					if (isPawn(hitValue2))
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
+						GetMovableIndicesPawn(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isRook(hitValue2))
+					{
+						GetMovableIndicesRook(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isKnight(hitValue2))
+					{
+						GetMovableIndicesKnight(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isBishop(hitValue2))
+					{
+						GetMovableIndicesBishop(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isQueen(hitValue2))
+					{
+						GetMovableIndicesQueen(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+					else if (isKing(hitValue2))
+					{
+						GetMovableIndicesKing(startStorageIndex, hitLocation);
+						HighlightMovableIndices(0);
+					}
+				}
+			}
+			else
+			{
+				// since we have escaped the first condition, the following will be ...
+				// else:
+				// change clickCount to 0;
+				// updateTransform location of instance[index1] to location of [index2]
+				// if hitIndexOn196_2 have piece on it (value != 0) -> update location of piece to graveyard +  set that ChessboardValue[index] == 0 && set ISMMapOn196 to -1
+				// unhighlight selectedTile + movableTiles
+				// TODO: check if the new position of this piece is checking the enemy
+				// TODO: check if the new position of this piece is exposing our King to the enemy (being checked)
+				clickCount = 0;
+				makeMove(hitIndexOn196_1, hitIndexOn196_2);
+			}
 		}
 	}
 }
 
 
-// TODO: so probably I still have to do a separate makeMove() function to correctly update the status of the Pawn or king firstMove
-// TODO: or if this function (which highly likely) check the condition before executing then I can just based on the condition to disable?
-// TODO: This exchange is having some problem. You might want to change to normal assignment
+// MUST GET THE CURRENT TRANSFORM OF PIECE SO THAT WE CAN ALSO COPY THE ROTATION, as pieces convert back to their Instanced Original Rotation as soon as we don't plug in current Rotator 
+// TODO: IF THE PLACE TO GO TO == 0 BUT IS DOING EN PASSANT
+// TODO: IF THE PLACE TO GO TO != 0 (BELONGS TO THE ENEMY)
 void ACustomPlayerController::makeMove(const int32& indexOn196_1, const int32& indexOn196_2) 
 {
 	const int32& pieceValue = ChessBoardValues[indexOn196_1];
 	FVector newLocation = Index196ToLocation(indexOn196_2);
+	FTransform currentTransform;
+
 	UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is at location: %s!"), *newLocation.ToString());
 	// Logic here: if the piece is of 4-data type (king, rook, or pawn), then we might have to change the bFirstMove
 	if (isPawn(pieceValue)) 
 	{
 		const int32& dataIndexInInstancedArray = Index196ToISMIndexPlusOne[indexOn196_1] * 4 - 1;
-		///TODO: check the first move and change the status if still == true
-		if (Pieces->ISM_Pawn->PerInstanceSMCustomData[dataIndexInInstancedArray])
+
+		if (Pieces->ISM_Pawn->PerInstanceSMCustomData[dataIndexInInstancedArray] == 1.f)
+			Pieces->ISM_Pawn->SetCustomDataValue(Index196ToISMIndexPlusOne[indexOn196_1]-1,3, 2.f);
+		else if (Pieces->ISM_Pawn->PerInstanceSMCustomData[dataIndexInInstancedArray] == 2.f)
 			Pieces->ISM_Pawn->SetCustomDataValue(Index196ToISMIndexPlusOne[indexOn196_1]-1,3, 0.f);
 
-		// update the location of the piece
 		UE_LOG(LogTemp, Warning, TEXT("Index of piece about to move: %d!"), Index196ToISMIndexPlusOne[indexOn196_1] - 1);
-		Pieces->ISM_Pawn->UpdateInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1]-1,FTransform(newLocation), true, true);
+		Pieces->ISM_Pawn->UpdateInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1]-1, FTransform(newLocation), true, true);
 	}
 	else if (isKing(pieceValue)) 
 	{
 		const int32& dataIndexInInstancedArray = Index196ToISMIndexPlusOne[indexOn196_1] * 4 - 1;
-		///TODO: check the first move and change the status if still == true
+
 		if (Pieces->ISM_King->PerInstanceSMCustomData[dataIndexInInstancedArray])
 			Pieces->ISM_King->SetCustomDataValue(Index196ToISMIndexPlusOne[indexOn196_1]-1,3, 0.f);
 
@@ -289,18 +701,35 @@ void ACustomPlayerController::makeMove(const int32& indexOn196_1, const int32& i
 	else if (isRook(pieceValue)) 
 	{
 		const int32& dataIndexInInstancedArray = Index196ToISMIndexPlusOne[indexOn196_1] * 4 - 1;
-		///TODO: check the first move and change the status if still == true
+
 		if (Pieces->ISM_Rook->PerInstanceSMCustomData[dataIndexInInstancedArray])
 			Pieces->ISM_Rook->SetCustomDataValue(Index196ToISMIndexPlusOne[indexOn196_1]-1,3, 0.f);
 
 		Pieces->ISM_Rook->UpdateInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1]-1,FTransform(newLocation), true, true);
 	}
-	else if (isBishop(pieceValue))
-		Pieces->ISM_Bishop->UpdateInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1]-1,FTransform(newLocation), true, true);
-	else if (isQueen(pieceValue))
+	else if (isQueen(pieceValue)) 
 		Pieces->ISM_Queen->UpdateInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1]-1,FTransform(newLocation), true, true);
+	else if (isBishop(pieceValue))
+	{
+		Pieces->ISM_Bishop->GetInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1] - 1, OUT currentTransform, false);
+		auto currentRotation = currentTransform.GetRotation().Rotator();
+		UE_LOG(LogTemp, Warning, TEXT("Current Rotation: %s!"), *currentRotation.ToString());
+
+		Pieces->ISM_Bishop->UpdateInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1]-1,FTransform(currentRotation, newLocation, FVector::OneVector), true, true);
+	}
 	else if (isKnight(pieceValue))
-		Pieces->ISM_Knight->UpdateInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1]-1,FTransform(newLocation), true, true);
+	{
+		Pieces->ISM_Knight->GetInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1] - 1, OUT currentTransform, false);
+		auto currentRotation = currentTransform.GetRotation().Rotator();
+		UE_LOG(LogTemp, Warning, TEXT("Current Rotation: %s!"), *currentRotation.ToString());
+
+		Pieces->ISM_Knight->UpdateInstanceTransform(Index196ToISMIndexPlusOne[indexOn196_1]-1,FTransform(currentRotation, newLocation, FVector::OneVector), true, true);
+	}
+
+
+	// TODO: COMPLETE THIS WITH VALUE CHECKING FOR EACH CASE (EN PASSANT, OR NORMAL EAT, ETC..)
+	if (ChessBoardValues[indexOn196_2] != 0)
+		moveToGraveyard(ChessBoardValues[indexOn196_2], indexOn196_2);
 
 	// unhighlight all the suggested Tiles
 	for (int i = 0; i < ActiveIndex; i++) 
@@ -312,6 +741,18 @@ void ACustomPlayerController::makeMove(const int32& indexOn196_1, const int32& i
 	// TODO: check if exchange() has already done that for us
 	exchange(indexOn196_1, indexOn196_2, ChessBoardValues);
 	exchange(indexOn196_1, indexOn196_2, Index196ToISMIndexPlusOne);
+
+	// only re-assign turn if the makeMove is successful
+	// TODO: reassign turn at the bottom
+	if (playerTurn == 1)
+		playerTurn = 2;
+	else if (playerTurn == 2)
+		playerTurn = 3;
+	else if (playerTurn == 3)
+		playerTurn = 4;
+	else if (playerTurn == 4)
+		playerTurn = 1;
+
 }
 
 void ACustomPlayerController::moveToGraveyard(const int32& pieceValue, const int32& hitIndexOn196_2) 
@@ -472,10 +913,11 @@ int32 ACustomPlayerController::LocationToIndex(const FVector& hitLocation)
 
 /* TODO: FINISH ALL MovableIndices FUNCTIONS, The implementation for POSITIVE AND NEGATIVE TEAMS are just placeholders, until you get the PlayerController */
 /* TODO: Lam function NhapThanh() */
-
-// TODO: CONSIDER EXTRACTING METHODS SEPARATELY FOR 4 SIDES, AS WE ARE GOING TO CHECK CONDITION FROM THE LEFT-CLICK ABOVE and MIGHT BE REPEATED IF WE CHECK THEM AGAIN HERE
+/// TODO: THINK WHETHER OTHER PIECES NEED 4-SIDE EXTRACTION, EATING WILL BE DIFFERENT, THRESHOLD (FOR EACH TEAM) WILL BE DIFFERENT (at least for knight), rook possibily is reversed-threshold
+// SEPARATING WILL BE EASIER TO CALL ON CLICK, AND WE CAN GET RID OF THE CONDITION (within these get movables functions) ONCE WE DONE EXTRACTING
+// TODO: LET THE GET MOVABLES RETURN BOOL (AS FOR KINGS AND PAWN THERE ARE SPECIAL MOVES, THESE BOOL WILL HELP IDENTIFY), THEN PASS THIS BOOL TO MAKE MOVE
 void ACustomPlayerController::GetMovableIndicesPawn(int32& startStorageIndex, const FVector& clickLocation)
-{
+{ // TODO: FINISH CHECKING FIRST MOVE FOR ALL SIDES
 	UE_LOG(LogTemp, Warning, TEXT("GetMovablesPawn is triggered!"));
 	const int32 currentIndex = LocationToIndex(clickLocation);
 	const int32 instanceIndexInInstancedArray = Index196ToISMIndexPlusOne[currentIndex];
@@ -483,18 +925,32 @@ void ACustomPlayerController::GetMovableIndicesPawn(int32& startStorageIndex, co
 	ActiveIndex = startStorageIndex;
 
 	// TODO: for each team the Pawn will be moving in different axes, make sure to do them after you've done networking
-	// for bottom team
-	if (offlineCount == 1)
+	// for bottom team - POSITIVE
+	if (playerTurn == 1)
 	{
-		// BOTH OF THESE FUNCTIONS ARE ALREADY CLAMP WITHIN [0, 195]
-		// TODO: Check if the piece is in range of player's playable pieces (not at this function but AT THE FUNCTION OnLeftMouseClick())
 		/* MOVE TO MOVE MOVE: STRAIGHT FORWARD */
 		if (currentIndex + 14 < 196)
+		{
 			if (ChessBoardValues[currentIndex + 14] == 0)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Value at tile ahead: %d"), ChessBoardValues[currentIndex + 14]);
 				MovableIndices[ActiveIndex++] = currentIndex + 14;
 			}
+			// EN PASSANT:
+			// IF IT'S RELATED TO VALID INDEXES AROUND ENEMY FIRST MOVE THEN IT'S GUARANTEED THAT THE INDEX IS VALID
+			else if (ChessBoardValues[currentIndex + 14] == -1)
+			{
+				int8 bEnemyJustMovedTheFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[Index196ToISMIndexPlusOne[currentIndex + 14] * 4 - 1];
+				if (bEnemyJustMovedTheFirstMove == 2)
+					MovableIndices[ActiveIndex++] = currentIndex + 13;
+			}
+			else if (ChessBoardValues[currentIndex + 14] == -11)
+			{
+				int8 bEnemyJustMovedTheFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[Index196ToISMIndexPlusOne[currentIndex + 14] * 4 - 1];
+				if (bEnemyJustMovedTheFirstMove == 2)
+					MovableIndices[ActiveIndex++] = currentIndex + 15;
+			}
+		}
 
 		/*  THE MOVE TO EAT (thus we don't consider == 0) */
 		// since we are doing demo for positive team, if value[position] > 0 then it's enemy
@@ -517,18 +973,32 @@ void ACustomPlayerController::GetMovableIndicesPawn(int32& startStorageIndex, co
 			if (ChessBoardValues[eatLeft + 13] < 0)
 				MovableIndices[ActiveIndex++] = eatLeft;
 	}
-
-	// for left team - NEGATIVE
-	if (offlineCount == 2)
-	{
+	else if (playerTurn == 2)
+	{ // for left team - NEGATIVE
 		const int32 moveRightThreshold = RightThresholdOfIndex(currentIndex);
 		/* THE MOVE TO MOVE - STRAIGHT RIGHT */
 		if (currentIndex + 1 < moveRightThreshold)
+		{
 			if (ChessBoardValues[currentIndex + 1] == 0)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Value at tile ahead: %d"), ChessBoardValues[currentIndex + 14]);
+				UE_LOG(LogTemp, Warning, TEXT("Value at tile ahead: %d"), ChessBoardValues[currentIndex + 1]);
 				MovableIndices[ActiveIndex++] = currentIndex + 1;
 			}
+			// EN PASSANT:
+			// IF IT'S RELATED TO VALID INDEXES AROUND ENEMY FIRST MOVE THEN IT'S GUARANTEED THAT THE INDEX IS VALID
+			else if (ChessBoardValues[currentIndex + 1] == 1)
+			{
+				int8 bEnemyJustMovedTheFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[Index196ToISMIndexPlusOne[currentIndex + 1] * 4 - 1];
+				if (bEnemyJustMovedTheFirstMove == 2)
+					MovableIndices[ActiveIndex++] = currentIndex - 13;
+			}
+			else if (ChessBoardValues[currentIndex + 1] == 11)
+			{
+				int8 bEnemyJustMovedTheFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[Index196ToISMIndexPlusOne[currentIndex + 1] * 4 - 1];
+				if (bEnemyJustMovedTheFirstMove == 2)
+					MovableIndices[ActiveIndex++] = currentIndex + 15;
+			}
+		}
 
 		/*  THE MOVE TO EAT (thus we don't consider == 0) */
 		const int32 eatUp = currentIndex + 15;
@@ -543,17 +1013,30 @@ void ACustomPlayerController::GetMovableIndicesPawn(int32& startStorageIndex, co
 			if (ChessBoardValues[eatDown] > 0 && ChessBoardValues[eatDown] != 7)
 				MovableIndices[ActiveIndex++] = eatDown;
 	}
-
-	// for top team - POSITIVE
-	if (offlineCount == 3)
-	{
+	else if (playerTurn == 3)
+	{ // for top team - POSITIVE
 		/* THE MOVE TO MOVE */
-		if (currentIndex - 14 < 196)
+		if (isIndexValid(currentIndex - 14))
+		{
 			if (ChessBoardValues[currentIndex - 14] == 0)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Value at tile ahead: %d"), ChessBoardValues[currentIndex + 14]);
+				UE_LOG(LogTemp, Warning, TEXT("Value at tile ahead: %d"), ChessBoardValues[currentIndex - 14]);
 				MovableIndices[ActiveIndex++] = currentIndex - 14;
 			}
+			// EN PASSANT:
+			else if (ChessBoardValues[currentIndex - 14] == -1)
+			{
+				int8 bEnemyJustMovedTheFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[Index196ToISMIndexPlusOne[currentIndex - 14] * 4 - 1];
+				if (bEnemyJustMovedTheFirstMove == 2)
+					MovableIndices[ActiveIndex++] = currentIndex - 15;
+			}
+			else if (ChessBoardValues[currentIndex - 14] == -11)
+			{
+				int8 bEnemyJustMovedTheFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[Index196ToISMIndexPlusOne[currentIndex - 14] * 4 - 1];
+				if (bEnemyJustMovedTheFirstMove == 2)
+					MovableIndices[ActiveIndex++] = currentIndex - 13;
+			}
+		}
 
 		/*  THE MOVE TO EAT (thus we don't consider == 0) */
 		// since we are doing demo for positive team, if value[position] > 0 then it's enemy
@@ -570,19 +1053,31 @@ void ACustomPlayerController::GetMovableIndicesPawn(int32& startStorageIndex, co
 			if (ChessBoardValues[eatLeft] < 0)
 				MovableIndices[ActiveIndex++] = eatLeft;
 	}
-
-	// TODO : finish for right team
-	// for right team - NEGATIVE
-	if (offlineCount == 4)
-	{
+	else if (playerTurn == 4)
+	{ // for right team - NEGATIVE
 		const int16 moveLeftThreshold = LeftThresholdOfIndex(currentIndex);
 		/* THE MOVE TO MOVE */
 		if (currentIndex - 1 > moveLeftThreshold)
+		{
 			if (ChessBoardValues[currentIndex - 1] == 0)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Value at tile ahead: %d"), ChessBoardValues[currentIndex + 14]);
+				UE_LOG(LogTemp, Warning, TEXT("Value at tile ahead: %d"), ChessBoardValues[currentIndex - 1]);
 				MovableIndices[ActiveIndex++] = currentIndex - 1;
 			}
+			// EN PASSANT:
+			else if (ChessBoardValues[currentIndex - 1] == 1)
+			{
+				int8 bEnemyJustMovedTheFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[Index196ToISMIndexPlusOne[currentIndex - 1] * 4 - 1];
+				if (bEnemyJustMovedTheFirstMove == 2)
+					MovableIndices[ActiveIndex++] = currentIndex - 15;
+			}
+			else if (ChessBoardValues[currentIndex - 1] == 11)
+			{
+				int8 bEnemyJustMovedTheFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[Index196ToISMIndexPlusOne[currentIndex - 1] * 4 - 1];
+				if (bEnemyJustMovedTheFirstMove == 2)
+					MovableIndices[ActiveIndex++] = currentIndex + 13;
+			}
+		}
 
 		/*  THE MOVE TO EAT (thus we don't consider == 0) */
 		// since we are doing demo for positive team, if value[position] > 0 then it's enemy
@@ -605,58 +1100,250 @@ void ACustomPlayerController::GetMovableIndicesPawn(int32& startStorageIndex, co
 	UE_LOG(LogTemp,Warning,TEXT("data instance is at %d"), dataIndexInInstancedDataArray);
 
 	// there's an explicit casting from float to bool here
-	bool bFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[dataIndexInInstancedDataArray];
+	int8 bFirstMove = Pieces->ISM_Pawn->PerInstanceSMCustomData[dataIndexInInstancedDataArray];
 
 	UE_LOG(LogTemp,Warning,TEXT("Pawn At %d, with data at %d in Instanced array, have value: %d"), instanceIndexInInstancedArray, dataIndexInInstancedDataArray, bFirstMove);
 
 	/* FIRST MOVE SPECIALS */
 	// get the 4th data Value of the instance data array (have to multiply instanceIndex * Num of Custom Data - 1 (since index mark from '0'))
 	// Pieces having 4 data are: Rook, King, Pawn
-	if (bFirstMove) // first move
+	// TODO: MAKE THIS 4-PLAYERS, THIS IS CURRENTLY ONLY WORKING WITH BOTTOM PLAYER
+	// if it's the first move then it's guaranteed to be valid, so we don't have to validate with condition check again
+	if (bFirstMove == 1) // first move
 	{
-		// TODO: DIVIDE THIS INTO 4 CASES AS WELL. MIGHT DO AFTER EXTRACTING ALL 4 METHODS
-
-		// FOR BOTTOM TEAM ONLY
-		UE_LOG(LogTemp,Warning,TEXT("First move of 3 is triggered!"));
-		if (currentIndex + 14 < 196)
-			if (ChessBoardValues[currentIndex + 14] == 0)
-				if (currentIndex + 28 < 196)
-					if (ChessBoardValues[currentIndex + 28] == 0)
-					{
-						UE_LOG(LogTemp,Warning,TEXT("Move 3 is doable!"));
-						MovableIndices[ActiveIndex++] = currentIndex + 28;
-					}
-
-		/* EN PASSANT */
-		/* WAITING FOR VALIDATION ON LOGIC BEfore finish coding */
-		// TODO: ensure that we don't have to check blocking condition for this
-		if (currentIndex == 17) 
-		{
-			// en passant
-			if (ChessBoardValues[45] < 0)
-			{
-				MovableIndices[ActiveIndex++] = 44;
-				// TODO: we use this en passant in OnLeftMouseClick Function to check whether to destroy the enemy
-				// TODO: Research if en passant can be done anywhere else
-				bEnPassant = true;
-			}
-		}
+		if (playerTurn == 1)
+		{ // FOR BOTTOM TEAM ONLY
+			UE_LOG(LogTemp,Warning,TEXT("First move of player bottom is triggered!"));
+			if (ChessBoardValues[currentIndex + 14] == 0 && ChessBoardValues[currentIndex + 28] == 0)
+					MovableIndices[ActiveIndex++] = currentIndex + 28;
+		}	
+		else if (playerTurn == 2)
+		{ // FOR LEFT TEAM ONLY
+			UE_LOG(LogTemp,Warning,TEXT("First move of player left is triggered!"));
+			if (ChessBoardValues[currentIndex + 1] == 0 && ChessBoardValues[currentIndex + 2] == 0)
+					MovableIndices[ActiveIndex++] = currentIndex + 2;
+		}	
+		else if (playerTurn == 3)
+		{ // FOR LEFT TEAM ONLY
+			UE_LOG(LogTemp,Warning,TEXT("First move of player top is triggered!"));
+			if (ChessBoardValues[currentIndex - 14] == 0 && ChessBoardValues[currentIndex - 28] == 0)
+					MovableIndices[ActiveIndex++] = currentIndex - 28;
+		}	
+		else if (playerTurn == 3)
+		{ // FOR LEFT TEAM ONLY
+			UE_LOG(LogTemp,Warning,TEXT("First move of player right is triggered!"));
+			if (ChessBoardValues[currentIndex - 1] == 0 && ChessBoardValues[currentIndex - 2] == 0)
+					MovableIndices[ActiveIndex++] = currentIndex - 2;
+		}	
 	} 
-
-	// TODO: reassign turn at the bottom
-	if (offlineCount == 1)
-		offlineCount = 2;
-	else if (offlineCount == 2)
-		offlineCount = 3;
-	else if (offlineCount == 3)
-		offlineCount = 4;
-	else if (offlineCount == 4)
-		offlineCount = 1;
-
 	for (int i = 0; i < ActiveIndex; i++)
-		UE_LOG(LogTemp, Warning, TEXT("movable index: %d"), MovableIndices[i]);
+		UE_LOG(LogTemp, Warning, TEXT("Movable index: %d"), MovableIndices[i]);
 }
 
+// TODO: we are going to set the material here instead of inside the pieces constructors
+// TODO: SET THE PROPER MATERIALS FOR EACH SIDES
+void ACustomPlayerController::spawnBottomActors()
+{
+	/* PAWN */
+	float x = 600.f, y = 1400.f;
+	for (int i = 0; i < 8; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<APawnActor>(FVector(x,y,0), FRotator::ZeroRotator));
+		pieces.Top()->SetMaterialInactive(1);
+		y += 400;
+	}
+
+	/* ROOK */
+	x = 200.f; 
+	y = 1400.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<ARookActor>(FVector(x,y,0), FRotator::ZeroRotator));
+		// some operations on tweaking the location here
+		pieces.Top()->SetMaterialInactive(1);
+		y += 2800.f;
+	}
+
+	/* KNIGHT */
+	x = 200.f; y = 1800.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<AKnightActor>(FVector(x,y,0), FRotator::ZeroRotator));
+		pieces.Top()->SetMaterialInactive(1);
+		y += 2000.f;
+	}
+
+	/* BISHOP */
+	x = 200.f; y = 2200.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<ABishopActor>(FVector(x,y,0), FRotator::ZeroRotator));
+		pieces.Top()->SetMaterialInactive(1);
+		y += 1200.f;
+	}
+
+	/* QUEEN */
+	x = 200.f; y = 2600.f;
+	pieces.Add(GetWorld()->SpawnActor<AQueenActor>(FVector(x,y,0), FRotator::ZeroRotator));
+	pieces.Top()->SetMaterialInactive(1);
+
+	/* KING */
+	x = 200.f; y = 3000.f;
+	pieces.Add(GetWorld()->SpawnActor<AKingActor>(FVector(x,y,0), FRotator::ZeroRotator));
+	pieces.Top()->SetMaterialInactive(1);
+}
+
+void ACustomPlayerController::spawnLeftActors()
+{
+	/* PAWN */
+	float x = 1400.f, y = 600.f;
+	for (int i = 0; i < 8; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<APawnActor>(FVector(x,y,0), FRotator(0,90,0)));
+		pieces.Top()->SetMaterialInactive(2);
+		x += 400.f;
+	}
+
+	/* ROOK */
+	x = 1400.f; y = 200.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<ARookActor>(FVector(x,y,0), FRotator::ZeroRotator));
+		pieces.Top()->SetMaterialInactive(2);
+		x += 2800.f;
+	}
+
+	/* KNIGHT */
+	x = 1800.f; y = 200.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<AKnightActor>(FVector(x,y,0), FRotator(0,90,0)));
+		pieces.Top()->SetMaterialInactive(2);
+		x += 2000.f;
+	}
+
+	/* BISHOP */
+	x = 2200.f; y = 200.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<ABishopActor>(FVector(x,y,0), FRotator(0,90,0)));
+		pieces.Top()->SetMaterialInactive(2);
+		x += 1200.f;
+	}
+
+	/* QUEEN */
+	x = 2600.f; y = 200.f;
+	pieces.Add(GetWorld()->SpawnActor<AQueenActor>(FVector(x,y,0), FRotator(0,90,0)));
+	pieces.Top()->SetMaterialInactive(2);
+
+	/* KING */
+	x = 3000.f; y = 200.f;
+	pieces.Add(GetWorld()->SpawnActor<AKingActor>(FVector(x,y,0), FRotator::ZeroRotator));
+	pieces.Top()->SetMaterialInactive(2);
+
+}
+
+void ACustomPlayerController::spawnTopActors()
+{
+	/* PAWN */
+	float x = 5000.f, y = 1400.f;
+	for (int i = 0; i < 8; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<APawnActor>(FVector(x,y,0), FRotator(0,180,0)));
+		pieces.Top()->SetMaterialInactive(3);
+		y += 400.f;
+	}
+
+	/* ROOK */
+	x = 5400.f; y = 1400.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<ARookActor>(FVector(x,y,0), FRotator::ZeroRotator));
+		pieces.Top()->SetMaterialInactive(3);
+		y += 2800.f;
+	}
+
+	/* KNIGHT */
+	x = 5400.f; y = 1800.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<AKnightActor>(FVector(x,y,0), FRotator(0,180,0)));
+		pieces.Top()->SetMaterialInactive(3);
+		y += 2000.f;
+	}
+
+	/* BISHOP */
+	x = 5400.f; y = 2200.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<ABishopActor>(FVector(x,y,0), FRotator(0,180,0)));
+		pieces.Top()->SetMaterialInactive(3);
+		y += 1200.f;
+	}
+
+	/* QUEEN */
+	x = 5400.f; y = 3000.f;
+	pieces.Add(GetWorld()->SpawnActor<AQueenActor>(FVector(x,y,0), FRotator(0,180,0)));
+	pieces.Top()->SetMaterialInactive(3);
+
+	/* KING */
+	x = 5400.f; y = 2600.f;
+	pieces.Add(GetWorld()->SpawnActor<AKingActor>(FVector(x,y,0), FRotator::ZeroRotator));
+	pieces.Top()->SetMaterialInactive(3);
+
+}
+
+void ACustomPlayerController::spawnRightActors()
+{
+	/* PAWN */
+	float x = 1400.f, y = 5000.f;
+	for (int i = 0; i < 8; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<APawnActor>(FVector(x,y,0), FRotator(0,-90,0)));
+		pieces.Top()->SetMaterialInactive(4);
+		x += 400.f;
+	}
+
+	/* ROOK */
+	x = 1400.f; y = 5400.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<ARookActor>(FVector(x,y,0), FRotator::ZeroRotator));
+		pieces.Top()->SetMaterialInactive(4);
+		x += 2800.f;
+	}
+
+	/* KNIGHT */
+	x = 1800.f; y = 5400.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<AKnightActor>(FVector(x,y,0), FRotator(0,-90,0)));
+		pieces.Top()->SetMaterialInactive(4);
+		x += 2000.f;
+	}
+
+	/* BISHOP */
+	x = 2200.f; y = 5400.f;
+	for (int i = 0; i < 2; i++)
+	{
+		pieces.Add(GetWorld()->SpawnActor<ABishopActor>(FVector(x,y,0), FRotator(0,-90,0)));
+		pieces.Top()->SetMaterialInactive(4);
+		x += 1200.f;
+	}
+
+	/* QUEEN */
+	x = 3000.f; y = 5400.f;
+	pieces.Add(GetWorld()->SpawnActor<AQueenActor>(FVector(x,y,0), FRotator(0,-90,0)));
+	pieces.Top()->SetMaterialInactive(4);
+
+	/* KING */
+	x = 2600.f; y = 5400.f;
+	pieces.Add(GetWorld()->SpawnActor<AKingActor>(FVector(x,y,0), FRotator::ZeroRotator));
+	pieces.Top()->SetMaterialInactive(4);
+
+}
+
+// TODO: WE STILL HAVE TO DO CONDITIONAL CHECK FOR CUSTOM EATING VALUES OF DIFFERENT TEAMs
 void ACustomPlayerController::GetMovableIndicesRook(int32& startStorageIndex, const FVector& clickLocation)
 {
 /* 
@@ -824,80 +1511,154 @@ void ACustomPlayerController::GetMovableIndicesRook(int32& startStorageIndex, co
 	}
 }
 
-// TODO: KNIGHT ON THE RIGHT IS NOT GETTING THE MOVABLES PROPERLY (missing left movables)
+// TODO: THRESHOLD FOR KNIGHTS IS CURRENTLY WRONG, PLEASE RE-CHECK (ESPECIALLY FOR TEAM RIGHT, BUT ANY TEAM AT ANY TIME CAN BE IN THAT PLACE AND THUS WOULD BE WRONG ALSO)
+// TODO: Take a look again at other threshold to see if we simply discard if the condition not within range of board or we take the min/max
 void ACustomPlayerController::GetMovableIndicesKnight(int32& startStorageIndex, const FVector& clickLocation)
 {
 	const int32 currentIndex = LocationToIndex(clickLocation);
 
-	int32 standLUpRight = currentIndex + 29,
-		  lieLUpRight = currentIndex + 16,
-		  standLUpLeft = currentIndex + 27,
-		  lieLUpLeft = currentIndex + 12,
-		  standLDownRight = currentIndex - 27,
-		  lieLDownRight = currentIndex - 12,
-		  standLDownLeft = currentIndex - 29,
-		  lieLDownLeft = currentIndex - 16;
+	int16 L2RowUpRight = currentIndex + 29,
+		L1RowUpRight = currentIndex + 16,
+		L2RowUpLeft = currentIndex + 27,
+		L1RowUpLeft = currentIndex + 12,
+		L2RowDownRight = currentIndex - 27,
+		L1RowDownRight = currentIndex - 12,
+		L2RowDownLeft = currentIndex - 29,
+		L1RowDownLeft = currentIndex - 16;
 
 	ActiveIndex = startStorageIndex;
 
+	// for bottom player
 	//TODO: have to compare these to the minimum of the board and maximum of the board
 	// TODO: we can just put that right into the threshold calculator
-	const int32 standUpLeftThreshold = LeftThresholdOfIndex(standLUpRight);
-	const int32 standUpRightThreshold = RightThresholdOfIndex(standLUpRight);
-	const int32 lieUpLeftThreshold = LeftThresholdOfIndex(lieLUpRight);
-	const int32 lieUpRightThreshold = RightThresholdOfIndex(lieLUpRight);
-	const int32 standDownLeftThreshold = LeftThresholdOfIndex(standLDownRight);
-	const int32 standDownRightThreshold = RightThresholdOfIndex(standLDownLeft);
-	const int32 lieDownRightThreshold = RightThresholdOfIndex(lieLDownLeft);
-	const int32 lieDownLeftThreshold = LeftThresholdOfIndex(lieLDownRight);
+	// TODO: CHANGE ALL STAND AND LIE EQUATION TO BEING RELATIVE OF OTHERS BEFORE IT, instead of heavily calling the function
+	const int16 currentRowLeftThreshold = LeftThresholdOfIndex(currentIndex);
+	const int16 currentRowRightThreshold = RightThresholdOfIndex(currentIndex);
 
-	const int32 upThreshold = 195;
-	const int32 downThreshold = 0;
+	const int16 oneRowUpLeftThreshold = currentRowLeftThreshold + 14;
+	const int16 oneRowUpRightThreshold = currentRowRightThreshold + 14;
+	const int16 twoRowUpLeftThreshold = currentRowLeftThreshold + 28;
+	const int16 twoRowUpRightThreshold = currentRowRightThreshold + 28;
+	const int16 oneRowDownLeftThreshold = currentRowLeftThreshold - 14;
+	const int16 oneRowDownRightThreshold = currentRowRightThreshold - 14;
+	const int16 twoRowDownLeftThreshold = currentRowLeftThreshold - 28;
+	const int16 twoRowDownRightThreshold = currentRowRightThreshold - 28;
 
-	// TODO: you can think of merging the Left and RightThreshold (tight condition) with 195 and 0? 
-	// check the validation of all 4 directions: up/down/left/right
-	/* POSITIVE TEAM */
-	// this is only for Positive teams
-	// if current player is Positive Team
-	if (standLUpRight <= standUpRightThreshold && standLUpRight <= upThreshold && standLUpRight >= downThreshold)
-		if (ChessBoardValues[standLUpRight] <= 0) 
-			MovableIndices[ActiveIndex++] = standLUpRight;
+	UE_LOG(LogTemp, Warning, TEXT("current Row left thres: %d"), currentRowLeftThreshold);
+	UE_LOG(LogTemp, Warning, TEXT("current Row right thres: %d"), currentRowRightThreshold);
+	UE_LOG(LogTemp, Warning, TEXT("L1RowDownRight: %d"), L1RowDownRight);
+	UE_LOG(LogTemp, Warning, TEXT("L1RowUpRight: %d"), L1RowUpRight);
+	UE_LOG(LogTemp, Warning, TEXT("oneRowUpRight Threshold: %d"), oneRowUpRightThreshold);
+	UE_LOG(LogTemp, Warning, TEXT("oneRowUpLeft Threshold: %d"), oneRowUpLeftThreshold);
 
-	UE_LOG(LogTemp, Warning, TEXT("standLUpleft Threshold is %d!"), standUpLeftThreshold);
-	UE_LOG(LogTemp, Warning, TEXT("standLUpRight Threshold is %d!"), standUpRightThreshold);
-	if (standLUpLeft >= standUpLeftThreshold && standLUpLeft <= upThreshold && standLUpLeft >= downThreshold)
-		if (ChessBoardValues[standLUpLeft] <= 0)
+	// all are non-strict condition
+	if (twoRowUpRightThreshold <= 195 && L2RowUpRight <= twoRowUpRightThreshold)
+	{
+		if (playerTurn == 1 || playerTurn == 3)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("standLUpleft is added to the active index!"))
-			MovableIndices[ActiveIndex++] = standLUpLeft;
+			if (ChessBoardValues[L2RowUpRight] <= 0) 
+				MovableIndices[ActiveIndex++] = L2RowUpRight;
 		}
+		else if (playerTurn == 2 || playerTurn == 4)
+		{
+			if (ChessBoardValues[L2RowUpRight] >= 0) 
+				MovableIndices[ActiveIndex++] = L2RowUpRight;
+		}
+	}
+	if (twoRowUpLeftThreshold <= 195 && L2RowUpLeft >= twoRowUpLeftThreshold)
+	{
+		if (playerTurn == 1 || playerTurn == 3)
+		{
+			if (ChessBoardValues[L2RowUpLeft] <= 0) 
+				MovableIndices[ActiveIndex++] = L2RowUpLeft;
+		}
+		else if (playerTurn == 2 || playerTurn == 4)
+		{
+			if (ChessBoardValues[L2RowUpLeft] >= 0) 
+				MovableIndices[ActiveIndex++] = L2RowUpLeft;
+		}
+	}
+	if (oneRowUpRightThreshold <= 195 && L1RowUpRight <= oneRowUpRightThreshold)
+	{
+		if (playerTurn == 1 || playerTurn == 3)
+		{
+			if (ChessBoardValues[L1RowUpRight] <= 0) 
+				MovableIndices[ActiveIndex++] = L1RowUpRight;
+		}
+		else if (playerTurn == 2 || playerTurn == 4)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ONEROWUP IS FIRED"));
+			if (ChessBoardValues[L1RowUpRight] >= 0) 
+				MovableIndices[ActiveIndex++] = L1RowUpRight;
+		}
+	}
+	if (oneRowUpLeftThreshold <= 195 && L1RowUpLeft >= oneRowUpLeftThreshold)
+	{
+		if (playerTurn == 1 || playerTurn == 3)
+		{
+			if (ChessBoardValues[L1RowUpLeft] <= 0) 
+				MovableIndices[ActiveIndex++] = L1RowUpLeft;
+		}
+		else if (playerTurn == 2 || playerTurn == 4) {
+			if (ChessBoardValues[L1RowUpLeft] >= 0) 
+				MovableIndices[ActiveIndex++] = L1RowUpLeft;
+		}
+	}
+	/* DOWNWARDS */
+	if (L2RowDownRight >= 0 && L2RowDownRight <= twoRowDownRightThreshold)
+	{
+		if (playerTurn == 1 || playerTurn == 3)
+		{
+			if (ChessBoardValues[L2RowDownRight] <= 0) 
+				MovableIndices[ActiveIndex++] = L2RowDownRight;
+		}
+		else if (playerTurn == 2 || playerTurn == 4)
+		{
+			if (ChessBoardValues[L2RowDownRight] >= 0) 
+				MovableIndices[ActiveIndex++] = L2RowDownRight;
+		}
+	}
+	if (twoRowDownLeftThreshold >= 0 && L2RowDownLeft >= twoRowDownLeftThreshold)
+	{
+		if (playerTurn == 1 || playerTurn == 3)
+		{
+			if (ChessBoardValues[L2RowDownLeft] <= 0) 
+				MovableIndices[ActiveIndex++] = L2RowDownLeft;
+		}
+		else if (playerTurn == 2 || playerTurn == 4) 
+		{
+			if (ChessBoardValues[L2RowDownLeft] >= 0) 
+				MovableIndices[ActiveIndex++] = L2RowDownLeft;
+		}
+	}
+	if (L1RowDownRight >= 0 && L1RowDownRight <= oneRowDownRightThreshold)
+	{
+		if (playerTurn == 1 || playerTurn == 3)
+		{
+			if (ChessBoardValues[L1RowDownRight] <= 0) 
+				MovableIndices[ActiveIndex++] = L1RowDownRight;
+		}
+		else if (playerTurn == 2 || playerTurn == 4)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ONEROWDOWN IS FIRED"));
+			if (ChessBoardValues[L1RowDownRight] >= 0) 
+				MovableIndices[ActiveIndex++] = L1RowDownRight;
+		}
+	}
+	if (oneRowDownLeftThreshold >= 0 && L1RowDownLeft >= oneRowDownLeftThreshold)
+	{
+		if (playerTurn == 1 || playerTurn == 3)
+		{
+			if (ChessBoardValues[L1RowDownLeft] <= 0) 
+				MovableIndices[ActiveIndex++] = L1RowDownLeft;
+		}
+		else if (playerTurn == 2 || playerTurn == 4)
+		{
+			if (ChessBoardValues[L1RowDownLeft] >= 0) 
+				MovableIndices[ActiveIndex++] = L1RowDownLeft;
+		}
+	}
 
-	if (lieLUpLeft >= lieUpLeftThreshold && lieLUpLeft <= upThreshold && lieLUpLeft >= downThreshold)
-		if (ChessBoardValues[lieLUpLeft] <= 0) 
-			MovableIndices[ActiveIndex++] = lieLUpLeft;
-
-	if (lieLUpRight <= lieUpRightThreshold && lieLUpRight <= upThreshold && lieLUpRight >= downThreshold)
-		if (ChessBoardValues[lieLUpRight] <= 0) 
-			MovableIndices[ActiveIndex++] = lieLUpRight;
-
-	if (standLDownLeft >= standDownLeftThreshold && standLDownLeft <= upThreshold && standLDownLeft >= downThreshold)
-		if (ChessBoardValues[standLDownLeft] <= 0) 
-			MovableIndices[ActiveIndex++] = standLDownLeft;
-
-	if (standLDownRight <= standDownRightThreshold && standLDownRight <= upThreshold && standLDownRight >= downThreshold)
-		if (ChessBoardValues[standLDownRight] <= 0) 
-			MovableIndices[ActiveIndex++] = standLDownRight;
-
-	if (lieLDownRight <= lieDownRightThreshold && lieLDownRight <= upThreshold && lieLDownRight >= downThreshold)
-		if (ChessBoardValues[lieLDownRight] <= 0) 
-			MovableIndices[ActiveIndex++] = lieLDownRight;
-
-	if (lieLDownLeft >= lieDownLeftThreshold && lieLDownLeft <= upThreshold && lieLDownLeft >= downThreshold)
-		if (ChessBoardValues[lieLDownLeft] <= 0) 
-			MovableIndices[ActiveIndex++] = lieLDownLeft;
-	
-	UE_LOG(LogTemp, Warning, TEXT("StandLUpLeft: %d"), standLUpLeft);
-	// active index has already got 1 more space extra compared to valued spaces
 	for (int i = 0; i < ActiveIndex; i++)
 		UE_LOG(LogTemp, Warning, TEXT("Indices for knights: %d"), MovableIndices[i]);
 
@@ -1092,7 +1853,7 @@ void ACustomPlayerController::GetMovableIndicesKing(int32& startStorageIndex, co
 // BOTH OF THESE FUNCTIONS ARE CLAMP WITHIN [0, 195]
 int32 ACustomPlayerController::LeftThresholdOfIndex(const int32& index)
 {
-	return std::min(std::max(index / 14 * 14, 0), 195);
+	return std::min(std::max(FMath::Floor(index / 14) * 14, 0), 195);
 }
 
 int32 ACustomPlayerController::RightThresholdOfIndex(const int32& index)
@@ -1102,32 +1863,32 @@ int32 ACustomPlayerController::RightThresholdOfIndex(const int32& index)
 
 // VALIDATION OF CLICK 1
 //this might not be as good as to change to storing one hit variable and compare the second click to the variable to see if we reset the click again 
-bool ACustomPlayerController::isClick1P1IndexValid(const int32& hitIndexOn196_) 
+bool ACustomPlayerController::isClick1P1IndexValid(const int32& hitIndexOn196) 
 {
-	if (ChessBoardValues[hitIndexOn196_] == 0) return false;
-	if (ChessBoardValues[hitIndexOn196_] < 1 || ChessBoardValues[hitIndexOn196_] > 6) return false;
-	return isIndexValid(hitIndexOn196_);
+	if (ChessBoardValues[hitIndexOn196] == 0) return false;
+	if (ChessBoardValues[hitIndexOn196] < 1 || ChessBoardValues[hitIndexOn196] > 6) return false;
+	return isIndexValid(hitIndexOn196);
 }
 
-bool ACustomPlayerController::isClick1P2IndexValid(const int32& hitIndexOn196_) 
+bool ACustomPlayerController::isClick1P2IndexValid(const int32& hitIndexOn196) 
 {
-	if (ChessBoardValues[hitIndexOn196_] == 0) return false;
-	if (ChessBoardValues[hitIndexOn196_] < -6 || ChessBoardValues[hitIndexOn196_] > -1) return false;
-	return isIndexValid(hitIndexOn196_);
+	if (ChessBoardValues[hitIndexOn196] == 0) return false;
+	if (ChessBoardValues[hitIndexOn196] < -6 || ChessBoardValues[hitIndexOn196] > -1) return false;
+	return isIndexValid(hitIndexOn196);
 }
 
-bool ACustomPlayerController::isClick1P3IndexValid(const int32& hitIndexOn196_) 
+bool ACustomPlayerController::isClick1P3IndexValid(const int32& hitIndexOn196) 
 {
-	if (ChessBoardValues[hitIndexOn196_] == 0) return false;
-	if (ChessBoardValues[hitIndexOn196_] < 11 || ChessBoardValues[hitIndexOn196_] > 16) return false;
-	return isIndexValid(hitIndexOn196_);
+	if (ChessBoardValues[hitIndexOn196] == 0) return false;
+	if (ChessBoardValues[hitIndexOn196] < 11 || ChessBoardValues[hitIndexOn196] > 16) return false;
+	return isIndexValid(hitIndexOn196);
 }
 
-bool ACustomPlayerController::isClick1P4IndexValid(const int32& hitIndexOn196_) 
+bool ACustomPlayerController::isClick1P4IndexValid(const int32& hitIndexOn196) 
 {
-	if (ChessBoardValues[hitIndexOn196_] == 0) return false;
-	if (ChessBoardValues[hitIndexOn196_] < -16 || ChessBoardValues[hitIndexOn196_] > -11) return false;
-	return isIndexValid(hitIndexOn196_);
+	if (ChessBoardValues[hitIndexOn196] == 0) return false;
+	if (ChessBoardValues[hitIndexOn196] < -16 || ChessBoardValues[hitIndexOn196] > -11) return false;
+	return isIndexValid(hitIndexOn196);
 }
 
 // VALIDATION OF CLICK 2
@@ -1136,7 +1897,7 @@ bool ACustomPlayerController::isClick2MoveIndexValid(const int32& hitIndexOn196)
 {
 	UE_LOG(LogTemp, Warning, TEXT("hitINdexOn196: %d"), hitIndexOn196);
 	UE_LOG(LogTemp, Warning, TEXT("ActiveIndex: %d"), ActiveIndex);
-	// see if the MovableIndices contains the hitIndexOn196_
+	// see if the MovableIndices contains the hitIndexOn196
 	if (ActiveIndex == 0) return false; // if no move available, we just mark as false so that it returns to waiting from click1
 	// TODO: fix: see if movable indices WITHIN ACTIVE INDEX RANGE contains the value
 	for (int i = 0; i < ActiveIndex; i++)
@@ -1190,8 +1951,11 @@ void ACustomPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	Board = GetWorld()->SpawnActor<AChessBoard>();
-	Pieces = GetWorld()->SpawnActor<AChessPieces>();
 
+	spawnLeftActors();
+	spawnBottomActors();
+	spawnTopActors();
+	spawnRightActors();
 /* 
 
 	The guy Spawn the Board as Separate Actor (one instance of type ChessBoard)
