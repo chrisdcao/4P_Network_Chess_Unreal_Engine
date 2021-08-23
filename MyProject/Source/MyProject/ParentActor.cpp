@@ -9,10 +9,10 @@ AParentActor::AParentActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
-	static ConstructorHelpers::FObjectFinder<UMaterial>BottomInactiveMaterialAsset(TEXT("Material'/Game/Materials/M_ChessPieces.M_ChessPieces'"));
-	static ConstructorHelpers::FObjectFinder<UMaterial>TopInactiveMaterialAsset(TEXT("Material'/Game/Materials/M_ChessPieces.M_ChessPieces'"));
-	static ConstructorHelpers::FObjectFinder<UMaterial>LeftInactiveMaterialAsset(TEXT("Material'/Game/Materials/M_ChessPieces.M_ChessPieces'"));
-	static ConstructorHelpers::FObjectFinder<UMaterial>RightInactiveMaterialAsset(TEXT("Material'/Game/Materials/M_ChessPieces.M_ChessPieces'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance>BottomInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Materials/M_Red.M_Red'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance>TopInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Materials/M_Yellow.M_Yellow'"));
+	static ConstructorHelpers::FObjectFinder<UMaterial>LeftInactiveMaterialAsset(TEXT("Material'/Game/Materials/M_Blue.M_Blue'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance>RightInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Materials/Green.Green'"));
 
 	static ConstructorHelpers::FObjectFinder<UMaterial>BottomActiveMaterialAsset(TEXT("Material'/Game/Materials/M_ChessPieces.M_ChessPieces'"));
 	static ConstructorHelpers::FObjectFinder<UMaterial>TopActiveMaterialAsset(TEXT("Material'/Game/Materials/M_ChessPieces.M_ChessPieces'"));

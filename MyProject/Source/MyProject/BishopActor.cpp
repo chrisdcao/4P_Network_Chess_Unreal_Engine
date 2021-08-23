@@ -12,7 +12,7 @@ ABishopActor::ABishopActor()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>BishopMeshAsset(TEXT("StaticMesh'/Game/ChessPieces/SM_Bishop.SM_Bishop'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>BishopMeshAsset(TEXT("StaticMesh'/Game/DuChamp/Bishop_DuChamp.Bishop_DuChamp'"));
 
 	if (BishopMeshAsset.Succeeded())
 		Mesh->SetStaticMesh(BishopMeshAsset.Object);

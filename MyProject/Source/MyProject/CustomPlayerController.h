@@ -3,12 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include <algorithm>
+
 #include "GameFramework/PlayerController.h"
 #include "Chessboard.h"
 #include "ChessPieces.h"
 #include "ParentActor.h"
 
 #include "CustomPlayerController.generated.h"
+
 
 /**
  * 
@@ -44,83 +48,83 @@ public:
 	void HighlightSelectedTileByLocation(const FVector& hitLocation);
 
 	UFUNCTION()
-	void HighlightSelectedTileByIndex(const int32& indexToHighlight);
+	void HighlightSelectedTileByIndex(const int16& indexToHighlight);
 
 	UFUNCTION()
-	void HighlightMovableIndices(const int32& startMovableIndex);
+	void HighlightMovableIndices(const int16& startMovableIndex);
 
 	UFUNCTION()
-	void UnhighlightTileByIndex(const int32& index, const bool& bMarkRenderStateDirty);
+	void UnhighlightTileByIndex(const int16& index, const bool& bMarkRenderStateDirty);
 
 	UFUNCTION()
 	FVector2D LocationToXY(const FVector& hitLocation);
 
 	UFUNCTION()
-	int32 LocationToIndex(const FVector& hitLocation);
+	int16 LocationToIndex(const FVector& hitLocation);
 
 	UFUNCTION()
-	int32 XYToIndex(const int32& XValue, const int32& YValue);
+	int16 XYToIndex(const int16& XValue, const int16& YValue);
+
+	// just consider change int16->int8 if possible on all the codes
+	UFUNCTION()
+	void checkMateToEnemyTeam(const int16& pieceIndex);
 
 	UFUNCTION()
-	void exchange(const int32& index1, const int32& index2, TArray<int32>& array);
-
-	// just consider change int32->int8 if possible on all the codes
-	UFUNCTION()
-	bool checkMate(const int32& playerIndex);
+	void checkMateToThisTeam(const int16& attackerPlayerSign);
 
 	UFUNCTION()
-	FVector Index196ToLocation(const int32& index);
+	FVector Index196ToLocation(const int16& index);
 
 	UFUNCTION()
-	bool isIndexValid(const int32& index);
+	bool isIndexValid(const int16& index);
 
 	// Validation of Click1
 	UFUNCTION()
-	bool isClick1P1IndexValid(const int32& hitIndexOn196);
+	bool isClick1P1IndexValid(const int16& hitIndexOn196);
 
 	UFUNCTION()
-	bool isClick1P2IndexValid(const int32& hitIndexOn196);
+	bool isClick1P2IndexValid(const int16& hitIndexOn196);
 
 	UFUNCTION()
-	bool isClick1P3IndexValid(const int32& hitIndexOn196);
+	bool isClick1P3IndexValid(const int16& hitIndexOn196);
 
 	UFUNCTION()
-	bool isClick1P4IndexValid(const int32& hitIndexOn196);
+	bool isClick1P4IndexValid(const int16& hitIndexOn196);
 
 	// Validation of Click2
 	UFUNCTION()
-	bool isClick2MoveIndexValid(const int32& hitIndexOn196);
+	bool isClick2MoveIndexValid(const int16& hitIndexOn196);
 
 	// checking what kind of piece it's
 	UFUNCTION()
-	bool isPawn(const int32& pieceValue);
+	bool isPawn(const int16& pieceValue);
 
 	UFUNCTION()
-	bool isRook(const int32& pieceValue);
+	bool isRook(const int16& pieceValue);
 
 	UFUNCTION()
-	bool isKnight(const int32& pieceValue);
+	bool isKnight(const int16& pieceValue);
 
 	UFUNCTION()
-	bool isBishop(const int32& pieceValue);
+	bool isBishop(const int16& pieceValue);
 
 	UFUNCTION()
-	bool isQueen(const int32& pieceValue);
+	bool isQueen(const int16& pieceValue);
 
 	UFUNCTION()
-	bool isKing(const int32& pieceValue);
+	bool isKing(const int16& pieceValue);
 
 	UFUNCTION()
-	void makeMove(const int32& index1, const int32& index2);
+	void makeMove(const int16& index1, int16 index2);
 
 	UFUNCTION()
-	void moveToGraveyard(const int32& pieceValue, const int32& ISMTo196Index);
+	void moveToGraveyard(const int16& index);
 
 	UFUNCTION()
-	int32 LeftThresholdOfIndex(const int32& index);
+	int16 LeftThresholdOfIndex(const int16& index);
 
 	UFUNCTION()
-	int32 RightThresholdOfIndex(const int32& index);
+	int16 RightThresholdOfIndex(const int16& index);
 
 	//UFUNCTION()
 	//void SwitchPlayer();
@@ -138,35 +142,35 @@ public:
 	/************** MECHANIC FUNCTION **************/
 
 	//UFUNCTION()
-	//void GetMovableIndices(int32 pieceValue, FVector clickLocation, TArray<int32> MovableIndices); 
+	//void GetMovableIndices(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
 	//UFUNCTION()
-	//void GetMovableIndicesPawn(int32 pieceValue, FVector clickLocation, TArray<int32> MovableIndices); 
+	//void GetMovableIndicesPawn(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
 
 	UFUNCTION()
-	void GetMovableIndicesRook(int32& startStorageIndex, const FVector& clickLocation); 
+	void GetMovableIndicesRook(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign); 
 
 	UFUNCTION()
-	void GetMovableIndicesKnight(int32& startStorageIndex, const FVector& clickLocation); 
+	void GetMovableIndicesKnight(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign); 
 
 	UFUNCTION()
-	void GetMovableIndicesBishop(int32& startStorageIndex, const FVector& clickLocation); 
+	void GetMovableIndicesBishop(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign); 
 
 	UFUNCTION()
-	void GetMovableIndicesQueen(int32& startStorageIndex, const FVector& clickLocation); 
+	void GetMovableIndicesQueen(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign); 
 
 	UFUNCTION()
-	void GetMovableIndicesKing(int32& startStorageIndex, const FVector& clickLocation); 
+	void GetMovableIndicesKing(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign); 
 
 	UFUNCTION()
-	void GetMovableIndicesPawn(int32& startStorageIndex, const FVector& clickLocation); 
+	void GetMovableIndicesPawn(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign); 
 	//UFUNCTION()
-	//void GetMovableIndicesKnight(int32 pieceValue, FVector clickLocation, TArray<int32> MovableIndices); 
+	//void GetMovableIndicesKnight(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
 	//UFUNCTION()
-	//void GetMovableIndicesBishop(int32 pieceValue, FVector clickLocation, TArray<int32> MovableIndices); 
+	//void GetMovableIndicesBishop(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
 	//UFUNCTION()
-	//void GetMovableIndicesKing(int32 pieceValue, FVector clickLocation, TArray<int32> MovableIndices); 
+	//void GetMovableIndicesKing(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
 	//UFUNCTION()
-	//void GetMovableIndicesQueen(int32 pieceValue, FVector clickLocation, TArray<int32> MovableIndices); 
+	//void GetMovableIndicesQueen(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
 
 	UFUNCTION()
 	void spawnBottomActors();
@@ -180,17 +184,11 @@ public:
 	/************** MECHANIC ARRAYS **************/
 	// We have to think of the real mechanics Array is SEPARATE from the Physical Board and Pieces
 	// So on each move we have to alter/change values of BOTH
-	TArray<int32> ChessBoardValues;
-	TArray<int32> Index196ToISMIndexPlusOne;
-	// HOLDS the indices of Movable Tiles
-	// TODO: Consider adding another array holding Our Team and Enemy Team MovableIndices differently for later CheckMate function
-	TArray<int32> MovableIndices;
-	// HOLDS the indices of Movable Tiles for KING ONLY
-	TArray<int32> KingP1MovableIndices;
-	TArray<int32> KingP2MovableIndices;
-	TArray<int32> KingP3MovableIndices;
-	TArray<int32> KingP4MovableIndices;
+	TArray<int16, TFixedAllocator<196>> IndexInPieceVectorFromBoardIndex;		// this TInlineAllocator make sure to use the Stack(fixed) Memory for the first 196 items of TArray
+	TArray<uint8, TFixedAllocator<160>> MovableIndices;
+	TArray<AParentActor*, TFixedAllocator<64>> pieces;
 
+	TArray<int16, TFixedAllocator<196>> MovableHashKeys;
 
 
 	/************** PHYSICAL PROPERTIES **************/
@@ -203,8 +201,6 @@ public:
 	UPROPERTY()
 	AChessPieces* Pieces;
 
-	TArray<AParentActor*> pieces;
-
 protected:
 
 	/************** PLAYER INPUT SETUP **************/
@@ -215,13 +211,20 @@ protected:
 	
 private:
 
-	int32 Click1Value;
-	int32 Click2Value;
-	int32 ActiveIndex;
-	int32 clickCount;
-	int32 hitIndexOn196_1;
+	int16 ActiveIndex;
+	int16 clickCount;
+	int16 hitIndexOn196_1;
+
 	bool bEnPassant;
-	int32 playerTurn;
 
+	int8 playerTurn;
+
+	bool bHash;
+
+	uint8 playerBeingCheckedMate;
+
+	bool bP1Checked;
+	bool bP2Checked;
+	bool bP3Checked;
+	bool bP4Checked;
 };
-

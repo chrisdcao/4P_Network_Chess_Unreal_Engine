@@ -14,7 +14,7 @@ AKingActor::AKingActor()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>KingMeshAsset(TEXT("StaticMesh'/Game/ChessPieces/SM_King.SM_King'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>KingMeshAsset(TEXT("StaticMesh'/Game/DuChamp/King_DuChamp.King_DuChamp'"));
 
 	if (KingMeshAsset.Succeeded())
 		Mesh->SetStaticMesh(KingMeshAsset.Object);

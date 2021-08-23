@@ -15,7 +15,7 @@ APawnActor::APawnActor()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>PawnMeshAsset(TEXT("StaticMesh'/Game/ChessPieces/SM_Pawn.SM_Pawn'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>PawnMeshAsset(TEXT("StaticMesh'/Game/DuChamp/Pawn_DuChamp.Pawn_DuChamp'"));
 
 	if (PawnMeshAsset.Succeeded())
 		Mesh->SetStaticMesh(PawnMeshAsset.Object);

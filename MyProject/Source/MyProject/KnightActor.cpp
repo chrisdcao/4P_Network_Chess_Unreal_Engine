@@ -12,7 +12,7 @@ AKnightActor::AKnightActor()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>KnightMeshAsset(TEXT("StaticMesh'/Game/ChessPieces/SM_Knight.SM_Knight'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>KnightMeshAsset(TEXT("StaticMesh'/Game/DuChamp/Knight_DuChamp.Knight_DuChamp'"));
 
 	if (KnightMeshAsset.Succeeded())
 		Mesh->SetStaticMesh(KnightMeshAsset.Object);

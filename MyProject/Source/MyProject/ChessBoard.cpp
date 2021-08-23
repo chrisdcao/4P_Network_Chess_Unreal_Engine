@@ -14,7 +14,7 @@ AChessBoard::AChessBoard()
 	InstancedStaticMeshComponent->SetMobility(EComponentMobility::Static);
 	InstancedStaticMeshComponent->NumCustomDataFloats = 1;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("StaticMesh'/Game/Surroundings/Floor.Floor'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("StaticMesh'/Game/Surroundings/Tile.Tile'"));
 	static ConstructorHelpers::FObjectFinder<UMaterial>Material(TEXT("Material'/Game/Materials/M_TestMaterial.M_TestMaterial'"));
 
 	InstancedStaticMeshComponent->SetStaticMesh(MeshAsset.Object);

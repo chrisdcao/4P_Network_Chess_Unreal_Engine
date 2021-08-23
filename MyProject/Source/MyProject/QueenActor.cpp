@@ -12,7 +12,7 @@ AQueenActor::AQueenActor()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>QueenMeshAsset(TEXT("StaticMesh'/Game/ChessPieces/SM_Queen.SM_Queen'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>QueenMeshAsset(TEXT("StaticMesh'/Game/DuChamp/Queen_DuChamp.Queen_DuChamp'"));
 
 	if (QueenMeshAsset.Succeeded())
 		Mesh->SetStaticMesh(QueenMeshAsset.Object);

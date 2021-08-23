@@ -14,7 +14,7 @@ ARookActor::ARookActor()
 
 	firstMove = 1;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>RookMeshAsset(TEXT("StaticMesh'/Game/ChessPieces/SM_Rook.SM_Rook'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>RookMeshAsset(TEXT("StaticMesh'/Game/DuChamp/Rook_DuChamp.Rook_DuChamp'"));
 
 	if (RookMeshAsset.Succeeded())
 		Mesh->SetStaticMesh(RookMeshAsset.Object);

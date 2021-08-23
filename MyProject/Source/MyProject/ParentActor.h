@@ -36,27 +36,32 @@ public:
 	UStaticMeshComponent* Mesh;
 
 	UPROPERTY(VisibleAnywhere)
-	UMaterial* BottomActiveMaterial;
+	UMaterialInterface* BottomActiveMaterial;
 
 	UPROPERTY(VisibleAnywhere)
-	UMaterial* BottomInactiveMaterial;
+	UMaterialInterface* BottomInactiveMaterial;
 
 	UPROPERTY(VisibleAnywhere)
-	UMaterial* TopActiveMaterial;
+	UMaterialInterface* TopActiveMaterial;
 
 	UPROPERTY(VisibleAnywhere)
-	UMaterial* TopInactiveMaterial;
+	UMaterialInterface* TopInactiveMaterial;
 
 	UPROPERTY(VisibleAnywhere)
-	UMaterial* LeftActiveMaterial;
+	UMaterialInterface* LeftActiveMaterial;
 
 	UPROPERTY(VisibleAnywhere)
-	UMaterial* LeftInactiveMaterial;
+	UMaterialInterface* LeftInactiveMaterial;
 
 	UPROPERTY(VisibleAnywhere)
-	UMaterial* RightActiveMaterial;
+	UMaterialInterface* RightActiveMaterial;
 
 	UPROPERTY(VisibleAnywhere)
-	UMaterial* RightInactiveMaterial;
+	UMaterialInterface* RightInactiveMaterial;
+
+/* VALUES */
+	int16 value;
+	int16 indexOnBoard;
+	int8 firstMove = 0;
 
 };

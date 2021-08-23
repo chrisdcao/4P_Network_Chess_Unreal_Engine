@@ -142,8 +142,8 @@ void ACustomPawn::Tick(float DeltaTime)
 
 	//if (!ensure(SpringArmComp)) return;
 
-	//if (!FMath::IsNearlyEqual(SpringArmComp->TargetArmLength, DesiredArmLength, 0.5f)) 
-		//SpringArmComp->TargetArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength, DesiredArmLength, DeltaTime, ZoomSmoothness);
+	if (!FMath::IsNearlyEqual(SpringArmComp->TargetArmLength, DesiredArmLength, 0.5f)) 
+		SpringArmComp->TargetArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength, DesiredArmLength, DeltaTime, ZoomSmoothness);
 
     //Rotate our actor's yaw, which will turn our camera because we're attached to it
     {
