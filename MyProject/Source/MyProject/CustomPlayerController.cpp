@@ -225,8 +225,11 @@ void ACustomPlayerController::OnLeftMouseClick()
 // KhanhCD Modify Start 2021-08-22
 				checkMateToEnemyTeam(hitIndexOn196_2);
 				MovableHashKeys.Init(-1, 196);
-				checkMateToThisTeam(-1);
+				// you might trigered enpassant again each time you call the get movable indices, thus you have to re-assing them again
+				bEnPassant = false;
+				checkMateToThisTeam();
 				MovableHashKeys.Init(-1, 196);
+				bEnPassant = false;
 
 				if (bP1Checked || bP3Checked)
 					UE_LOG(LogTemp, Warning, TEXT("Team 1 lose!"));
@@ -352,8 +355,11 @@ void ACustomPlayerController::OnLeftMouseClick()
 				// KhanhCD Modify Start 2021-08-22
 				checkMateToEnemyTeam(hitIndexOn196_2);
 				MovableHashKeys.Init(-1, 196);
-				checkMateToThisTeam(1);
+				// you might trigered enpassant again each time you call the get movable indices, thus you have to re-assing them again
+				bEnPassant = false;
+				checkMateToThisTeam();
 				MovableHashKeys.Init(-1, 196);
+				bEnPassant = false;
 
 				if (bP2Checked || bP4Checked)
 					UE_LOG(LogTemp, Warning, TEXT("Team 2 lose!"));
@@ -475,8 +481,11 @@ void ACustomPlayerController::OnLeftMouseClick()
 				// KhanhCD Modify Start 2021-08-22
 				checkMateToEnemyTeam(hitIndexOn196_2);
 				MovableHashKeys.Init(-1, 196);
-				checkMateToThisTeam(-1);
+				// you might trigered enpassant again each time you call the get movable indices, thus you have to re-assing them again
+				bEnPassant = false;
+				checkMateToThisTeam();
 				MovableHashKeys.Init(-1, 196);
+				bEnPassant = false;
 
 				if (bP1Checked || bP3Checked)
 					UE_LOG(LogTemp, Warning, TEXT("Team 1 lose!"));
@@ -597,8 +606,11 @@ void ACustomPlayerController::OnLeftMouseClick()
 				// KhanhCD Modify Start 2021-08-22
 				checkMateToEnemyTeam(hitIndexOn196_2);
 				MovableHashKeys.Init(-1, 196);
-				checkMateToThisTeam(1);
+				// you might trigered enpassant again each time you call the get movable indices, thus you have to re-assing them again
+				bEnPassant = false;
+				checkMateToThisTeam();
 				MovableHashKeys.Init(-1, 196);
+				bEnPassant = false;
 
 				if (bP2Checked || bP4Checked)
 					UE_LOG(LogTemp, Warning, TEXT("Team 2 lose!"));
@@ -619,6 +631,7 @@ void ACustomPlayerController::OnLeftMouseClick()
 void ACustomPlayerController::makeMove(const int16& indexOn196_1, int16 indexOn196_2)
 {
 	const int16 pieceValue = pieces[IndexInPieceVectorFromBoardIndex[indexOn196_1]]->value;
+	UE_LOG(LogTemp, Warning, TEXT("pieceValue: %d"), pieceValue);
 	FVector newLocation = Index196ToLocation(indexOn196_2);
 
 	const int16 IndexInPieceVector = IndexInPieceVectorFromBoardIndex[indexOn196_1];
@@ -670,8 +683,8 @@ void ACustomPlayerController::makeMove(const int16& indexOn196_1, int16 indexOn1
 			IndexInPieceVectorFromBoardIndex[indexToGraveyard] = -1;
 		}
 		// reset EnPassant to false again
-		bEnPassant = false;
 	}
+	bEnPassant = false;
 	// unhighlight all the suggested Tiles
 	for (int i = 0; i < ActiveIndex; i++)
 		UnhighlightTileByIndex(MovableIndices[i], false);
@@ -690,6 +703,7 @@ void ACustomPlayerController::moveToGraveyard(const int16& hitIndexOn196_2)
 
 	const int8 IndexInPieceVector = IndexInPieceVectorFromBoardIndex[hitIndexOn196_2];
 	UE_LOG(LogTemp, Warning, TEXT("IndexInPieceVector: %d"), IndexInPieceVector);
+	UE_LOG(LogTemp, Warning, TEXT("hitIndexon196_2: %d"), hitIndexOn196_2);
 	const int8 pieceValue = pieces[IndexInPieceVector]->value;
 
 	// TODO: there will be separate places for each type of piece, not currently implemented
@@ -850,7 +864,7 @@ void ACustomPlayerController::checkMateToEnemyTeam(const int16& boardIndex)
 // TODO: fix this function to work NULL SAFE (i.e. work even when CURRENT INDEX NOT VALID (i.e WORK EVEN WHEN EATEN PIECES indices BEING PASSED IN, BY SKIPPING THEM))
 // TODO: AND ALSO FIX THAT ERROR IN OTHER SIMILAR FUNCTIONS AS WELL
 // since it's checkMate to CURRENT TEAM (check if current TEam is being checked mate), the attackers are the opposite team, thus their sign are opposite
-void ACustomPlayerController::checkMateToThisTeam(const int16& attackerPlayerSign)
+void ACustomPlayerController::checkMateToThisTeam()
 {
 	if (playerTurn == 1 || playerTurn == 3)
 	{   // get all movables of team 2 & team 4 into hashKeys
@@ -861,75 +875,65 @@ void ACustomPlayerController::checkMateToThisTeam(const int16& attackerPlayerSig
 		for (int i = 32; i <= 39; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesPawn(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesPawn(ActiveIndex, pieces[i]->indexOnBoard, true, -2);
 		}
 		for (int i = 40; i <= 41; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesRook(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesRook(ActiveIndex, pieces[i]->indexOnBoard, true, -2);
 		}
 		for (int i = 42; i <= 43; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesKnight(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesKnight(ActiveIndex, pieces[i]->indexOnBoard, true, -2);
 		}
 		for (int i = 44; i <= 45; i++)
-		{
+		{ // getting indices from bishop is obtaining wrong indices (not getting blocked or something?) that it takes in even the indices of king and queen
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesBishop(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesBishop(ActiveIndex, pieces[i]->indexOnBoard, true, -2);
 		}
 		if (pieces[46]->indexOnBoard != -1) 
-			GetMovableIndicesQueen(ActiveIndex, pieces[46]->indexOnBoard, true, attackerPlayerSign);
+			GetMovableIndicesQueen(ActiveIndex, pieces[46]->indexOnBoard, true, -2);
 		if (pieces[47]->indexOnBoard != -1) 
-			GetMovableIndicesKing(ActiveIndex, pieces[47]->indexOnBoard, true, attackerPlayerSign);
+			GetMovableIndicesKing(ActiveIndex, pieces[47]->indexOnBoard, true, -2);
 
 		// team 4
 		for (int i = 48; i <= 55; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesPawn(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesPawn(ActiveIndex, pieces[i]->indexOnBoard, true, -4);
 		}
 		for (int i = 56; i <= 57; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesRook(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesRook(ActiveIndex, pieces[i]->indexOnBoard, true, -4);
 		}
 		for (int i = 58; i <= 59; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesKnight(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesKnight(ActiveIndex, pieces[i]->indexOnBoard, true, -4);
 		}
 		for (int i = 60; i <= 61; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesBishop(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesBishop(ActiveIndex, pieces[i]->indexOnBoard, true, -4);
 		}
 		if (pieces[62]->indexOnBoard != -1) 
-			GetMovableIndicesQueen(ActiveIndex, pieces[62]->indexOnBoard, true, attackerPlayerSign);
+			GetMovableIndicesQueen(ActiveIndex, pieces[62]->indexOnBoard, true, -4);
 		if (pieces[63]->indexOnBoard != -1) 
-			GetMovableIndicesKing(ActiveIndex, pieces[63]->indexOnBoard, true, attackerPlayerSign);
-		if (MovableHashKeys[P1KingPosition] == P1KingPosition)
-		{	// if it contains King Movable then we lose
+			GetMovableIndicesKing(ActiveIndex, pieces[63]->indexOnBoard, true, -4);
+		if (MovableHashKeys[P1KingPosition] == P1KingPosition) 
 			bP1Checked = true;
-		}
-		else
-		{   // else if we are already being checked, but after our move it no longer contains the King position -> change the status of being checked to false
-			if (bP1Checked)
-				bP1Checked = false;
-		}
+		else 
+			bP1Checked = false;
 		// SAME LOGIC APPLIES HERE
-		if (MovableHashKeys[P3KingPosition] == P3KingPosition)
-		{
+		if (MovableHashKeys[P3KingPosition] == P3KingPosition) 
 			bP3Checked = true;
-		}
-		else
-		{
-			if (bP3Checked)
-				bP3Checked = false;
-		}
+		else 
+			bP3Checked = false;
 	}
 
-	if (playerTurn == -2 || playerTurn == -4)
+	else if (playerTurn == -2 || playerTurn == -4)
 	{   // get all movables of team 1 & team 3 into hashKeys
 		const int P2KingPosition = pieces[47]->indexOnBoard;
 		const int P4KingPosition = pieces[63]->indexOnBoard;
@@ -938,72 +942,62 @@ void ACustomPlayerController::checkMateToThisTeam(const int16& attackerPlayerSig
 		for (int i = 0; i <= 7; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesPawn(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesPawn(ActiveIndex, pieces[i]->indexOnBoard, true, 1);
 		}
 		for (int i = 8; i <= 9; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesRook(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesRook(ActiveIndex, pieces[i]->indexOnBoard, true, 1);
 		}
 		for (int i = 10; i <= 11; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesKnight(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesKnight(ActiveIndex, pieces[i]->indexOnBoard, true, 1);
 		}
 		for (int i = 12; i <= 13; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesBishop(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesBishop(ActiveIndex, pieces[i]->indexOnBoard, true, 1);
 		}
 		if (pieces[14]->indexOnBoard != -1) 
-			GetMovableIndicesQueen(ActiveIndex, pieces[14]->indexOnBoard, true, attackerPlayerSign);
+			GetMovableIndicesQueen(ActiveIndex, pieces[14]->indexOnBoard, true, 1);
 		if (pieces[15]->indexOnBoard != -1) 
-			GetMovableIndicesKing(ActiveIndex, pieces[15]->indexOnBoard, true, attackerPlayerSign);
+			GetMovableIndicesKing(ActiveIndex, pieces[15]->indexOnBoard, true, 1);
 
 		// team 3
 		for (int i = 16; i <= 23; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesPawn(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesPawn(ActiveIndex, pieces[i]->indexOnBoard, true, 3);
 		}
 		for (int i = 24; i <= 25; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesRook(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesRook(ActiveIndex, pieces[i]->indexOnBoard, true, 3);
 		}
 		for (int i = 26; i <= 27; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesKnight(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesKnight(ActiveIndex, pieces[i]->indexOnBoard, true, 3);
 		}
 		for (int i = 28; i <= 29; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
-				GetMovableIndicesBishop(ActiveIndex, pieces[i]->indexOnBoard, true, attackerPlayerSign);
+				GetMovableIndicesBishop(ActiveIndex, pieces[i]->indexOnBoard, true, 3);
 		}
 		if (pieces[30]->indexOnBoard != -1) 
-			GetMovableIndicesQueen(ActiveIndex, pieces[30]->indexOnBoard, true, attackerPlayerSign);
+			GetMovableIndicesQueen(ActiveIndex, pieces[30]->indexOnBoard, true, 3);
 		if (pieces[31]->indexOnBoard != -1) 
-			GetMovableIndicesKing(ActiveIndex, pieces[31]->indexOnBoard, true, attackerPlayerSign);
+			GetMovableIndicesKing(ActiveIndex, pieces[31]->indexOnBoard, true, 3);
 		if (MovableHashKeys[P2KingPosition] == P2KingPosition)
-		{	// if it contains King Movable then we lose
 			bP2Checked = true;
-		}
 		else
-		{   // else if we are already being checked, but after our move it no longer contains the King position -> change the status of being checked to false
-			if (bP2Checked)
-				bP2Checked = false;
-		}
+			bP2Checked = false;
 		// SAME LOGIC APPLIES HERE
 		if (MovableHashKeys[P4KingPosition] == P4KingPosition)
-		{
 			bP4Checked = true;
-		}
 		else
-		{
-			if (bP4Checked)
-				bP4Checked = false;
-		}
+			bP4Checked = false;
 	}
 }
 
@@ -1391,8 +1385,8 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 	//	UE_LOG(LogTemp, Warning, TEXT("Movable index: %d"), MovableIndices[i]);
 }
 
-// TODO: Fix this * attackerPlayerSign as its logic is error with CheckMateToThisTeam (check other team movables on our Turn)
-void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign)
+// TODO: Fix this * attackerTurn as its logic is error with CheckMateToThisTeam (check other team movables on our Turn)
+void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerTurn)
 {
 	/*
 		 Moving Logic as follow:
@@ -1427,10 +1421,10 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 		else
 		{
 			// if reach one of our side then break instantly
-			if (pieces[IndexInPieceVectorFromBoardIndex[goLeft]]->value * attackerPlayerSign > 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goLeft]]->value * attackerTurn > 0)
 				break;
 			// if reach enemy side then take that 1 index into account then break instantly
-			if (pieces[IndexInPieceVectorFromBoardIndex[goLeft]]->value * attackerPlayerSign < 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goLeft;
@@ -1454,10 +1448,10 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 		else
 		{
 			// if reach one of our side then break instantly
-			if (pieces[IndexInPieceVectorFromBoardIndex[goRight]]->value * attackerPlayerSign > 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goRight]]->value * attackerTurn > 0)
 				break;
 			// if reach enemy side then take that 1 index into account then break instantly
-			if (pieces[IndexInPieceVectorFromBoardIndex[goRight]]->value * attackerPlayerSign < 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goRight;
@@ -1481,10 +1475,10 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 		else
 		{
 			// if reach one of our side then break instantly
-			if (pieces[IndexInPieceVectorFromBoardIndex[goUp]]->value * attackerPlayerSign > 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goUp]]->value * attackerTurn > 0)
 				break;
 			// if reach enemy side then take that 1 index into account then break instantly
-			if (pieces[IndexInPieceVectorFromBoardIndex[goUp]]->value * attackerPlayerSign < 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goUp]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goUp;
@@ -1508,10 +1502,10 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 		else
 		{ 
 			// if reach one of our side then break instantly
-			if (pieces[IndexInPieceVectorFromBoardIndex[goDown]]->value * attackerPlayerSign > 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goDown]]->value * attackerTurn > 0)
 				break;
 			// if reach enemy side then take that 1 index into account then break instantly
-			if (pieces[IndexInPieceVectorFromBoardIndex[goDown]]->value * attackerPlayerSign < 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goDown]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goDown;
@@ -1524,7 +1518,7 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 }
 
 // TODO: Check all functions for SIGSEV safe with this new implentation (index != -1 and -2 before passing into pieces)
-void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign)
+void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerTurn)
 {
 	int16 L2RowUpRight = currentIndex + 29,
 		L1RowUpRight = currentIndex + 16,
@@ -1574,7 +1568,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				else
 					MovableHashKeys[L2RowUpRight] = L2RowUpRight;
 			}
-			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowUpRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowUpRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowUpRight;
@@ -1595,7 +1589,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				else
 					MovableHashKeys[L2RowUpLeft] = L2RowUpLeft;
 			}
-			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowUpLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowUpLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowUpLeft;
@@ -1616,7 +1610,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				else
 					MovableHashKeys[L1RowUpRight] = L1RowUpRight;
 			}
-			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowUpRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowUpRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowUpRight;
@@ -1637,7 +1631,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				else
 					MovableHashKeys[L1RowUpLeft] = L1RowUpLeft;
 			}
-			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowUpLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowUpLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowUpLeft;
@@ -1658,7 +1652,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				else
 					MovableHashKeys[L2RowDownRight] = L2RowDownRight;
 			}
-			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowDownRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowDownRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowDownRight;
@@ -1678,7 +1672,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				else
 					MovableHashKeys[L2RowDownLeft] = L2RowDownLeft;
 			}
-			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowDownLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowDownLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowDownLeft;
@@ -1698,7 +1692,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				else
 					MovableHashKeys[L1RowDownRight] = L1RowDownRight;
 			}
-			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowDownRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowDownRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowDownRight;
@@ -1719,7 +1713,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				else
 					MovableHashKeys[L1RowDownLeft] = L1RowDownLeft;
 			}
-			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowDownLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowDownLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowDownLeft;
@@ -1735,7 +1729,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 }
 
 // TODO: FINISH TEAM EATING MOVE 
-void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign)
+void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerTurn)
 {
 	int16 goUpLeft = currentIndex + 13,
 		goUpRight = currentIndex + 15,
@@ -1764,12 +1758,11 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 		else
 		{
 			// TODO: we get one more index of the enemy team into movables and ONLY AFTERWARDS do we break
-			if (pieces[IndexInPieceVectorFromBoardIndex[goUpLeft]]->value * attackerPlayerSign > 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goUpLeft]]->value * attackerTurn > 0)
 				break;
-			if (pieces[IndexInPieceVectorFromBoardIndex[goUpLeft]]->value * attackerPlayerSign < 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goUpLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
-					// shift left 1 unit relatively to current position (which already shift left 1 unit compared to position before it)
 					MovableIndices[ActiveIndex++] = goUpLeft;
 				else
 					MovableHashKeys[goUpLeft] = goUpLeft;
@@ -1793,9 +1786,9 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 		else
 		{
 			// TODO: we get one more index of the enemy team into movables and ONLY AFTERWARDS do we break
-			if (pieces[IndexInPieceVectorFromBoardIndex[goUpRight]]->value * attackerPlayerSign > 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goUpRight]]->value * attackerTurn > 0)
 				break;
-			if (pieces[IndexInPieceVectorFromBoardIndex[goUpRight]]->value * attackerPlayerSign < 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goUpRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					// shift left 1 unit relatively to current position (which already shift left 1 unit compared to position before it)
@@ -1821,9 +1814,9 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 		}
 		else
 		{
-			if (pieces[IndexInPieceVectorFromBoardIndex[goDownLeft]]->value * attackerPlayerSign > 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goDownLeft]]->value * attackerTurn > 0)
 				break;
-			if (pieces[IndexInPieceVectorFromBoardIndex[goDownLeft]]->value * attackerPlayerSign < 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goDownLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					// shift left 1 unit relatively to current position (which already shift left 1 unit compared to position before it)
@@ -1849,12 +1842,11 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 		}
 		else
 		{
-			if (pieces[IndexInPieceVectorFromBoardIndex[goDownRight]]->value * attackerPlayerSign > 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goDownRight]]->value * attackerTurn > 0)
 				break;
-			if (pieces[IndexInPieceVectorFromBoardIndex[goDownRight]]->value * attackerPlayerSign < 0)
+			if (pieces[IndexInPieceVectorFromBoardIndex[goDownRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
-					// shift Right 1 unit relatively to current position (which already shift Right 1 unit compared to position before it)
 					MovableIndices[ActiveIndex++] = goDownRight;
 				else
 					MovableHashKeys[goDownRight] = goDownRight;
@@ -1865,14 +1857,14 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 }
 
 // TODO: THIS IS CAUSING SEG FAULT
-void ACustomPlayerController::GetMovableIndicesQueen(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign)
+void ACustomPlayerController::GetMovableIndicesQueen(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerTurn)
 {
-	GetMovableIndicesBishop(startStorageIndex, currentIndex, bUseHash, attackerPlayerSign);
-	GetMovableIndicesRook(ActiveIndex, currentIndex, bUseHash, attackerPlayerSign);
+	GetMovableIndicesBishop(startStorageIndex, currentIndex, bUseHash, attackerTurn);
+	GetMovableIndicesRook(ActiveIndex, currentIndex, bUseHash, attackerTurn);
 }
 
 /* TODO: THIS ONE NOT HAVING TIGHT THRESHOLD,  MIGHT CAUSE IT SEG FAULT, CHAINING THE SEGFAULT TO CHECKMATE? */
-void ACustomPlayerController::GetMovableIndicesKing(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign)
+void ACustomPlayerController::GetMovableIndicesKing(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerTurn)
 {
 	// VERTICAL AND HORIZONTAL MOVES
 	const int16 kingUp = currentIndex + 14,
@@ -1900,56 +1892,56 @@ void ACustomPlayerController::GetMovableIndicesKing(int16& startStorageIndex, co
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingUpLeft] == -1)
 				MovableIndices[ActiveIndex++] = kingUpLeft;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpLeft]]->value * attackerTurn < 0)
 				MovableIndices[ActiveIndex++] = kingUpLeft;
 		}
 		if (kingUp <= 195 && IndexInPieceVectorFromBoardIndex[kingUp] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingUp] == -1)
 				MovableIndices[ActiveIndex++] = kingUp;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUp]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUp]]->value * attackerTurn < 0)
 				MovableIndices[ActiveIndex++] = kingUp;
 		}
 		if (OneRowUpRightThreshold <= 195 && kingUpRight <= OneRowUpRightThreshold && IndexInPieceVectorFromBoardIndex[kingUpRight] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingUpRight] == -1)
 				MovableIndices[ActiveIndex++] = kingUpRight;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpRight]]->value * attackerTurn < 0)
 				MovableIndices[ActiveIndex++] = kingUpRight;
 		}
 		if (kingLeft >= currentRowLeftThreshold && IndexInPieceVectorFromBoardIndex[kingLeft] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingLeft] == -1)
 				MovableIndices[ActiveIndex++] = kingLeft;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingLeft]]->value * attackerTurn < 0)
 				MovableIndices[ActiveIndex++] = kingLeft;
 		}
 		if (kingRight <= currentRowRightThreshold && IndexInPieceVectorFromBoardIndex[kingRight] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingRight] == -1)
 				MovableIndices[ActiveIndex++] = kingRight;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingRight]]->value * attackerTurn < 0)
 				MovableIndices[ActiveIndex++] = kingRight;
 		}
 		if (OneRowDownLeftThreshold >= 0 && kingDownLeft >= OneRowDownLeftThreshold && IndexInPieceVectorFromBoardIndex[kingDownLeft] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingDownLeft] == -1)
 				MovableIndices[ActiveIndex++] = kingDownLeft;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownLeft]]->value * attackerTurn < 0)
 				MovableIndices[ActiveIndex++] = kingDownLeft;
 		}
 		if (kingDown >= 0 && IndexInPieceVectorFromBoardIndex[kingDown] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingDown] == -1)
 				MovableIndices[ActiveIndex++] = kingDown;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDown]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDown]]->value * attackerTurn < 0)
 				MovableIndices[ActiveIndex++] = kingDown;
 		}
 		if (kingDownRight >= 0 && kingDownRight <= OneRowDownRightThreshold && IndexInPieceVectorFromBoardIndex[kingDownRight] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingDownRight] == -1)
 				MovableIndices[ActiveIndex++] = kingDownRight;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownRight]]->value * attackerTurn < 0)
 				MovableIndices[ActiveIndex++] = kingDownRight;
 		}
 	}
@@ -1959,56 +1951,56 @@ void ACustomPlayerController::GetMovableIndicesKing(int16& startStorageIndex, co
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingUpLeft] == -1)
 				MovableHashKeys[kingUpLeft] = kingUpLeft;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpLeft]]->value * attackerTurn < 0)
 				MovableHashKeys[kingUpLeft] = kingUpLeft;
 		}
 		if (kingUp <= 195 && IndexInPieceVectorFromBoardIndex[kingUp] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingUp] == -1)
 				MovableHashKeys[kingUp] = kingUp;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUp]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUp]]->value * attackerTurn < 0)
 				MovableHashKeys[kingUp] = kingUp;
 		}
 		if (OneRowUpRightThreshold <= 195 && kingUpRight <= OneRowUpRightThreshold && IndexInPieceVectorFromBoardIndex[kingUpRight] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingUpRight] == -1)
 				MovableHashKeys[kingUpRight] = kingUpRight;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpRight]]->value * attackerTurn < 0)
 				MovableHashKeys[kingUpRight] = kingUpRight;
 		}
 		if (kingLeft >= currentRowLeftThreshold && IndexInPieceVectorFromBoardIndex[kingLeft] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingLeft] == -1)
 				MovableHashKeys[kingLeft] = kingLeft;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingLeft]]->value * attackerTurn < 0)
 				MovableHashKeys[kingLeft] = kingLeft;
 		}
 		if (kingRight <= currentRowRightThreshold && IndexInPieceVectorFromBoardIndex[kingRight] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingRight] == -1)
 				MovableHashKeys[kingRight] = kingRight;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingRight]]->value * attackerTurn < 0)
 				MovableHashKeys[kingRight] = kingRight;
 		}
 		if (OneRowDownLeftThreshold >= 0 && kingDownLeft >= OneRowDownLeftThreshold && IndexInPieceVectorFromBoardIndex[kingDownLeft] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingDownLeft] == -1)
 				MovableHashKeys[kingDownLeft] = kingDownLeft;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownLeft]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownLeft]]->value * attackerTurn < 0)
 				MovableHashKeys[kingDownLeft] = kingDownLeft;
 		}
 		if (kingDown >= 0 && IndexInPieceVectorFromBoardIndex[kingDown] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingDown] == -1)
 				MovableHashKeys[kingDown] = kingDown;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDown]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDown]]->value * attackerTurn < 0)
 				MovableHashKeys[kingDown] = kingDown;
 		}
 		if (kingDownRight >= 0 && kingDownRight <= OneRowDownRightThreshold && IndexInPieceVectorFromBoardIndex[kingDownRight] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingDownRight] == -1)
 				MovableHashKeys[kingDownRight] = kingDownRight;
-			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownRight]]->value * attackerPlayerSign < 0)
+			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownRight]]->value * attackerTurn < 0)
 				MovableHashKeys[kingDownRight] = kingDownRight;
 		}
 	}
@@ -2018,7 +2010,7 @@ void ACustomPlayerController::GetMovableIndicesKing(int16& startStorageIndex, co
 	//if (pieces[IndexInPieceVectorFromBoardIndex[currentIndex]]->firstMove = 1)	// is the currentKing is still valid for Castling
 	//{
 	//	// TODO: Check if the currentKing is being checked
-	//	if (attackerPlayerSign == 1)
+	//	if (attackerTurn == 1)
 	//	{
 	//		if (IndexInPieceVectorFromBoardIndex[originalRookIndex] <= -1) return;	// if the position of Rook is not the same then return, this is also for SafeNull
 	//		if (pieces[IndexInPieceVectorFromBoardIndex[originaRookIndex]] != index-of-rook-in-PieceVector-of-team-1) return;	// if the current piece is not Team1 original Rook then return

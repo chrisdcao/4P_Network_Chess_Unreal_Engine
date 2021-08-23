@@ -70,7 +70,7 @@ public:
 	void checkMateToEnemyTeam(const int16& pieceIndex);
 
 	UFUNCTION()
-	void checkMateToThisTeam(const int16& attackerPlayerSign);
+	void checkMateToThisTeam();
 
 	UFUNCTION()
 	FVector Index196ToLocation(const int16& index);
