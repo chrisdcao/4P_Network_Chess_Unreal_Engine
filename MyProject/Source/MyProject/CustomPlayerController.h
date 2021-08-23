@@ -188,7 +188,7 @@ public:
 	TArray<uint8, TFixedAllocator<160>> MovableIndices;
 	TArray<AParentActor*, TFixedAllocator<64>> pieces;
 
-	TArray<int16, TFixedAllocator<196>> MovableHashKeys;
+	TArray<int16, TFixedAllocator<196>> EatableHashKeys;
 
 
 	/************** PHYSICAL PROPERTIES **************/

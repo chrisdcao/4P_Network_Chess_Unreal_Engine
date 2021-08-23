@@ -32,7 +32,7 @@ ACustomPlayerController::ACustomPlayerController()
 	ActiveIndex = 0;
 	bEnPassant = false;
 	MovableIndices.Init(0, 160);
-	MovableHashKeys.Init(-1, 196);
+	EatableHashKeys.Init(-1, 196);
 
 	bHash = false;
 	IndexInPieceVectorFromBoardIndex = {
@@ -97,8 +97,8 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 		if (clickCount == 0)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Left mouse click 1 is triggered!"));
-			UE_LOG(LogTemp, Warning, TEXT("current clickCount is %d"), clickCount);
+			//UE_LOG(LogTemp, Warning, TEXT("Left mouse click 1 is triggered!"));
+			//UE_LOG(LogTemp, Warning, TEXT("current clickCount is %d"), clickCount);
 
 			hitIndexOn196_1 = LocationToIndex(hitLocation);
 			// TODO: make this 4 players 
@@ -107,16 +107,15 @@ void ACustomPlayerController::OnLeftMouseClick()
 			clickCount = 1;
 
 			const int16 hitValue1 = pieces[IndexInPieceVectorFromBoardIndex[hitIndexOn196_1]]->value;
-			UE_LOG(LogTemp, Warning, TEXT("current clickvalue is %d"), hitValue1);
+			//UE_LOG(LogTemp, Warning, TEXT("current clickvalue is %d"), hitValue1);
 
 			int16 startStorageIndex = 0;
 			HighlightSelectedTileByIndex(hitIndexOn196_1);
 
-			UE_LOG(LogTemp, Warning, TEXT("Hit Value is %d!"), IndexInPieceVectorFromBoardIndex[hitIndexOn196_1]);
-			UE_LOG(LogTemp, Warning, TEXT("Hit Index is %d!"), hitIndexOn196_1);
+			//UE_LOG(LogTemp, Warning, TEXT("Hit Value is %d!"), IndexInPieceVectorFromBoardIndex[hitIndexOn196_1]);
+			//UE_LOG(LogTemp, Warning, TEXT("Hit Index is %d!"), hitIndexOn196_1);
 			if (isPawn(hitValue1))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
 				GetMovableIndicesPawn(startStorageIndex, hitIndexOn196_1, false, playerTurn);
 				HighlightMovableIndices(0);
 			}
@@ -160,8 +159,8 @@ void ACustomPlayerController::OnLeftMouseClick()
 			if (!isClick2MoveIndexValid(hitIndexOn196_2))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Left mouse click 2 is not valid at %d with value %d!"), hitIndexOn196_2, IndexInPieceVectorFromBoardIndex[hitIndexOn196_2]);
-				for (int i = 0; i < ActiveIndex; i++)
-					UE_LOG(LogTemp, Warning, TEXT("Movable indices at %d contains index: %d!"), i, MovableIndices[i]);
+				//for (int i = 0; i < ActiveIndex; i++)
+				//	UE_LOG(LogTemp, Warning, TEXT("Movable indices at %d contains index: %d!"), i, MovableIndices[i]);
 				// IF IT'S THE  PLAYER CLICK AGAIN ON ONE OF HIS PIECE (we take it as re-selection) and cast it back to click1
 				if (isClick1P1IndexValid(hitIndexOn196_2))	// re-selection happens	
 				{
@@ -182,7 +181,6 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 					if (isPawn(hitValue2))
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
 						GetMovableIndicesPawn(startStorageIndex, hitIndexOn196_1, false, playerTurn);
 						HighlightMovableIndices(0);
 					}
@@ -224,11 +222,11 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 // KhanhCD Modify Start 2021-08-22
 				checkMateToEnemyTeam(hitIndexOn196_2);
-				MovableHashKeys.Init(-1, 196);
+				EatableHashKeys.Init(-1, 196);
 				// you might trigered enpassant again each time you call the get movable indices, thus you have to re-assing them again
 				bEnPassant = false;
 				checkMateToThisTeam();
-				MovableHashKeys.Init(-1, 196);
+				EatableHashKeys.Init(-1, 196);
 				bEnPassant = false;
 
 				if (bP1Checked || bP3Checked)
@@ -254,7 +252,6 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 			if (isPawn(hitValue1))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
 				GetMovableIndicesPawn(startStorageIndex, hitIndexOn196_1, false, playerTurn);
 				HighlightMovableIndices(0);
 			}
@@ -300,7 +297,7 @@ void ACustomPlayerController::OnLeftMouseClick()
 				{
 					bEnPassant = false;
 					//DEBUG
-					UE_LOG(LogTemp, Warning, TEXT("Cast back to click1 from click2"));
+					//UE_LOG(LogTemp, Warning, TEXT("Cast back to click1 from click2"));
 					// unhighlight all the past highlighted tiles
 					for (int i = 0; i < ActiveIndex; i++)
 						UnhighlightTileByIndex(MovableIndices[i], false);
@@ -315,7 +312,6 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 					if (isPawn(hitValue2))
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
 						GetMovableIndicesPawn(startStorageIndex, hitIndexOn196_1, false, playerTurn);
 						HighlightMovableIndices(0);
 					}
@@ -354,11 +350,11 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 				// KhanhCD Modify Start 2021-08-22
 				checkMateToEnemyTeam(hitIndexOn196_2);
-				MovableHashKeys.Init(-1, 196);
+				EatableHashKeys.Init(-1, 196);
 				// you might trigered enpassant again each time you call the get movable indices, thus you have to re-assing them again
 				bEnPassant = false;
 				checkMateToThisTeam();
-				MovableHashKeys.Init(-1, 196);
+				EatableHashKeys.Init(-1, 196);
 				bEnPassant = false;
 
 				if (bP2Checked || bP4Checked)
@@ -384,7 +380,6 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 			if (isPawn(hitValue1))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
 				GetMovableIndicesPawn(startStorageIndex, hitIndexOn196_1, false, playerTurn);
 				HighlightMovableIndices(0);
 			}
@@ -441,7 +436,6 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 					if (isPawn(hitValue2))
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
 						GetMovableIndicesPawn(startStorageIndex, hitIndexOn196_1, false, playerTurn);
 						HighlightMovableIndices(0);
 					}
@@ -480,11 +474,11 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 				// KhanhCD Modify Start 2021-08-22
 				checkMateToEnemyTeam(hitIndexOn196_2);
-				MovableHashKeys.Init(-1, 196);
+				EatableHashKeys.Init(-1, 196);
 				// you might trigered enpassant again each time you call the get movable indices, thus you have to re-assing them again
 				bEnPassant = false;
 				checkMateToThisTeam();
-				MovableHashKeys.Init(-1, 196);
+				EatableHashKeys.Init(-1, 196);
 				bEnPassant = false;
 
 				if (bP1Checked || bP3Checked)
@@ -566,7 +560,6 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 					if (isPawn(hitValue2))
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Pawn!"));
 						GetMovableIndicesPawn(startStorageIndex, hitIndexOn196_1, false, playerTurn);
 						HighlightMovableIndices(0);
 					}
@@ -605,11 +598,11 @@ void ACustomPlayerController::OnLeftMouseClick()
 
 				// KhanhCD Modify Start 2021-08-22
 				checkMateToEnemyTeam(hitIndexOn196_2);
-				MovableHashKeys.Init(-1, 196);
+				EatableHashKeys.Init(-1, 196);
 				// you might trigered enpassant again each time you call the get movable indices, thus you have to re-assing them again
 				bEnPassant = false;
 				checkMateToThisTeam();
-				MovableHashKeys.Init(-1, 196);
+				EatableHashKeys.Init(-1, 196);
 				bEnPassant = false;
 
 				if (bP2Checked || bP4Checked)
@@ -631,7 +624,7 @@ void ACustomPlayerController::OnLeftMouseClick()
 void ACustomPlayerController::makeMove(const int16& indexOn196_1, int16 indexOn196_2)
 {
 	const int16 pieceValue = pieces[IndexInPieceVectorFromBoardIndex[indexOn196_1]]->value;
-	UE_LOG(LogTemp, Warning, TEXT("pieceValue: %d"), pieceValue);
+	//UE_LOG(LogTemp, Warning, TEXT("pieceValue: %d"), pieceValue);
 	FVector newLocation = Index196ToLocation(indexOn196_2);
 
 	const int16 IndexInPieceVector = IndexInPieceVectorFromBoardIndex[indexOn196_1];
@@ -702,8 +695,8 @@ void ACustomPlayerController::moveToGraveyard(const int16& hitIndexOn196_2)
 { // TODO: MOVE the type to appropriate place (now it's all move to same place)
 
 	const int8 IndexInPieceVector = IndexInPieceVectorFromBoardIndex[hitIndexOn196_2];
-	UE_LOG(LogTemp, Warning, TEXT("IndexInPieceVector: %d"), IndexInPieceVector);
-	UE_LOG(LogTemp, Warning, TEXT("hitIndexon196_2: %d"), hitIndexOn196_2);
+	//UE_LOG(LogTemp, Warning, TEXT("IndexInPieceVector: %d"), IndexInPieceVector);
+	//UE_LOG(LogTemp, Warning, TEXT("hitIndexon196_2: %d"), hitIndexOn196_2);
 	const int8 pieceValue = pieces[IndexInPieceVector]->value;
 
 	// TODO: there will be separate places for each type of piece, not currently implemented
@@ -732,19 +725,19 @@ void ACustomPlayerController::moveToGraveyard(const int16& hitIndexOn196_2)
 // TODO: create the highlight color on another Lerp so that we can toggle on or off on a specific channel using specific DataValue
 void ACustomPlayerController::HighlightSelectedTileByLocation(const FVector& hitLocation)
 {
-	if (!Board)
-		UE_LOG(LogTemp, Warning, TEXT("The board is NUL"));
+	//if (!Board)
+	//	UE_LOG(LogTemp, Warning, TEXT("The board is NUL"));
 	const FVector2D XYIndex = LocationToXY(hitLocation);
 	const int16 indexToHighlight = XYToIndex(XYIndex.X, XYIndex.Y);
-	UE_LOG(LogTemp, Warning, TEXT("Highlight Tile Index: %d"), indexToHighlight);
+	//UE_LOG(LogTemp, Warning, TEXT("Highlight Tile Index: %d"), indexToHighlight);
 	Board->InstancedStaticMeshComponent->SetCustomDataValue(indexToHighlight, 0, 1.f, true);
 }
 
 void ACustomPlayerController::HighlightSelectedTileByIndex(const int16& indexToHighlight)
 {
-	if (!Board)
-		UE_LOG(LogTemp, Warning, TEXT("The board is NULL"));
-	UE_LOG(LogTemp, Warning, TEXT("Highlight Tile Index: %d"), indexToHighlight);
+	//if (!Board)
+	//	UE_LOG(LogTemp, Warning, TEXT("The board is NULL"));
+	//UE_LOG(LogTemp, Warning, TEXT("Highlight Tile Index: %d"), indexToHighlight);
 	Board->InstancedStaticMeshComponent->SetCustomDataValue(indexToHighlight, 0, 1.f, true);
 }
 
@@ -757,7 +750,7 @@ void ACustomPlayerController::HighlightMovableIndices(const int16& startMovableI
 		// highlight all movable indices
 		int16 i = startMovableIndex;
 		int16 index196;
-		UE_LOG(LogTemp, Warning, TEXT("Active index at HMI: %d"), ActiveIndex);
+		//UE_LOG(LogTemp, Warning, TEXT("Active index at HMI: %d"), ActiveIndex);
 		for (/*  */; i < ActiveIndex - 1; i++)
 		{
 			index196 = MovableIndices[i];
@@ -787,7 +780,7 @@ void ACustomPlayerController::HighlightMovableIndices(const int16& startMovableI
 		// we want to MarkRenderDirty only at last of loop (bcoz it's costly), thus separate
 		// this i is the 'failed condition' i, which means it has already incremented to activeIndex - 1 (the last index)
 		index196 = MovableIndices[i];
-		UE_LOG(LogTemp, Warning, TEXT("last movable Index is: %d"), index196);
+		//UE_LOG(LogTemp, Warning, TEXT("last movable Index is: %d"), index196);
 		// same check logic
 		if (IndexInPieceVectorFromBoardIndex[index196] == -1)
 			Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 0, 1.f, true);
@@ -804,7 +797,7 @@ void ACustomPlayerController::UnhighlightTileByIndex(const int16& index, const b
 
 FVector2D ACustomPlayerController::LocationToXY(const FVector& hitLocation)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Location2Index: Receive Location: %s"), *hitLocation.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Location2Index: Receive Location: %s"), *hitLocation.ToString());
 	return FVector2D(hitLocation.X, hitLocation.Y);
 }
 
@@ -847,16 +840,16 @@ void ACustomPlayerController::checkMateToEnemyTeam(const int16& boardIndex)
 
 	if (playerTurn == 1 || playerTurn == 3)
 	{
-		if (MovableHashKeys[kingLeftPosition] == kingLeftPosition)
+		if (EatableHashKeys[kingLeftPosition] == kingLeftPosition)
 			bP2Checked = true;
-		if (MovableHashKeys[kingRightPosition] == kingRightPosition)
+		if (EatableHashKeys[kingRightPosition] == kingRightPosition)
 			bP4Checked = true;
 	}
 	else if (playerTurn == -2 || playerTurn == -4)
 	{
-		if (MovableHashKeys[kingBottomPosition] == kingBottomPosition)
+		if (EatableHashKeys[kingBottomPosition] == kingBottomPosition)
 			bP1Checked = true;
-		if (MovableHashKeys[kingTopPosition] == kingTopPosition)
+		if (EatableHashKeys[kingTopPosition] == kingTopPosition)
 			bP3Checked = true;
 	}
 }
@@ -870,7 +863,7 @@ void ACustomPlayerController::checkMateToThisTeam()
 	{   // get all movables of team 2 & team 4 into hashKeys
 		const int P1KingPosition = pieces[15]->indexOnBoard;
 		const int P3KingPosition = pieces[31]->indexOnBoard;
-		// team 2
+		/* TEAM 2 */
 		// The attackPlayerSign is for used in any eating move that uses '* attackPlayerSign' to check the validity of the eat index 
 		for (int i = 32; i <= 39; i++)
 		{
@@ -897,7 +890,7 @@ void ACustomPlayerController::checkMateToThisTeam()
 		if (pieces[47]->indexOnBoard != -1) 
 			GetMovableIndicesKing(ActiveIndex, pieces[47]->indexOnBoard, true, -2);
 
-		// team 4
+		/* TEAM 4 */
 		for (int i = 48; i <= 55; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
@@ -922,12 +915,12 @@ void ACustomPlayerController::checkMateToThisTeam()
 			GetMovableIndicesQueen(ActiveIndex, pieces[62]->indexOnBoard, true, -4);
 		if (pieces[63]->indexOnBoard != -1) 
 			GetMovableIndicesKing(ActiveIndex, pieces[63]->indexOnBoard, true, -4);
-		if (MovableHashKeys[P1KingPosition] == P1KingPosition) 
+		if (EatableHashKeys[P1KingPosition] == P1KingPosition) 
 			bP1Checked = true;
 		else 
 			bP1Checked = false;
 		// SAME LOGIC APPLIES HERE
-		if (MovableHashKeys[P3KingPosition] == P3KingPosition) 
+		if (EatableHashKeys[P3KingPosition] == P3KingPosition) 
 			bP3Checked = true;
 		else 
 			bP3Checked = false;
@@ -937,7 +930,7 @@ void ACustomPlayerController::checkMateToThisTeam()
 	{   // get all movables of team 1 & team 3 into hashKeys
 		const int P2KingPosition = pieces[47]->indexOnBoard;
 		const int P4KingPosition = pieces[63]->indexOnBoard;
-		// team 1
+		/* TEAM 1 */
 		// The attackPlayerSign is for used in any eating move that uses '* attackPlayerSign' to check the validity of the eat index 
 		for (int i = 0; i <= 7; i++)
 		{
@@ -964,7 +957,7 @@ void ACustomPlayerController::checkMateToThisTeam()
 		if (pieces[15]->indexOnBoard != -1) 
 			GetMovableIndicesKing(ActiveIndex, pieces[15]->indexOnBoard, true, 1);
 
-		// team 3
+		/* TEAM 3 */
 		for (int i = 16; i <= 23; i++)
 		{
 			if (pieces[i]->indexOnBoard != -1) 
@@ -989,12 +982,12 @@ void ACustomPlayerController::checkMateToThisTeam()
 			GetMovableIndicesQueen(ActiveIndex, pieces[30]->indexOnBoard, true, 3);
 		if (pieces[31]->indexOnBoard != -1) 
 			GetMovableIndicesKing(ActiveIndex, pieces[31]->indexOnBoard, true, 3);
-		if (MovableHashKeys[P2KingPosition] == P2KingPosition)
+		if (EatableHashKeys[P2KingPosition] == P2KingPosition)
 			bP2Checked = true;
 		else
 			bP2Checked = false;
 		// SAME LOGIC APPLIES HERE
-		if (MovableHashKeys[P4KingPosition] == P4KingPosition)
+		if (EatableHashKeys[P4KingPosition] == P4KingPosition)
 			bP4Checked = true;
 		else
 			bP4Checked = false;
@@ -1009,15 +1002,15 @@ int16 ACustomPlayerController::LocationToIndex(const FVector& hitLocation)
 // TODO: NOW, CASTLING SHOULD BE CONSIDERED AS A MOVABLES OF THE KING, UNTIL THE KING IS NO LONGER APPROPRIATE FOR THAT MOVE
 
 // TODO: MAKE ENPASSANT HAPPENS ONLY AT 4 CORNERS OF THE TABLE
-void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& dummyVariable)
+void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerTurn)
 { // TODO: Segfault error
-	UE_LOG(LogTemp, Warning, TEXT("GetMovablesPawn is triggered!"));
+	//UE_LOG(LogTemp, Warning, TEXT("GetMovablesPawn is triggered!"));
 	ActiveIndex = startStorageIndex;
 	bEnPassant = false;
 
 	// TODO: for each team the Pawn will be moving in different axes, make sure to do them after you've done networking
 	// for bottom team - POSITIVE
-	if (playerTurn == 1)
+	if (attackerTurn == 1)
 	{
 		/* MOVE TO MOVE MOVE: STRAIGHT FORWARD */
 		if (currentIndex + 14 < 196)
@@ -1026,11 +1019,11 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 			{
 				if (IndexInPieceVectorFromBoardIndex[currentIndex + 14] == -1)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("1 move ahead is fired!"));
+					//UE_LOG(LogTemp, Warning, TEXT("1 move ahead is fired!"));
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = currentIndex + 14;
 					else
-						MovableHashKeys[currentIndex + 14] = currentIndex + 14;
+						EatableHashKeys[currentIndex + 14] = currentIndex + 14;
 				}
 				// EN PASSANT: 
 				//  TODO: EN PASSANT IS CURRENTLY CORRECT IN DETECTING THE CELL, BUT IS NOT PERFORMING THE EAT (NOT CURRENTLY DESTROYING THE ENEMY PIECE)
@@ -1044,7 +1037,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 						if (bUseHash == false)
 							MovableIndices[ActiveIndex++] = currentIndex + 13;
 						else
-							MovableHashKeys[currentIndex + 13] = currentIndex + 13;
+							EatableHashKeys[currentIndex + 13] = currentIndex + 13;
 					}
 					bEnPassant = true;
 				}
@@ -1055,7 +1048,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 						if (bUseHash == false)
 							MovableIndices[ActiveIndex++] = currentIndex + 15;
 						else
-							MovableHashKeys[currentIndex + 15] = currentIndex + 15;
+							EatableHashKeys[currentIndex + 15] = currentIndex + 15;
 					}
 					bEnPassant = true;
 				}
@@ -1085,7 +1078,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = eatRight;
 					else
-						MovableHashKeys[eatRight] = eatRight;
+						EatableHashKeys[eatRight] = eatRight;
 				}
 			}
 		}
@@ -1098,13 +1091,13 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = eatLeft;
 					else
-						MovableHashKeys[eatLeft] = eatLeft;
+						EatableHashKeys[eatLeft] = eatLeft;
 				}
 			}
 		}
 	}
 	// TODO: write movable hash keys for 3 other players 
-	else if (playerTurn == -2)
+	else if (attackerTurn == -2)
 	{ // for left team - NEGATIVE
 		const int16 moveRightThreshold = RightThresholdOfIndex(currentIndex);
 		/* THE MOVE TO MOVE - STRAIGHT RIGHT */
@@ -1117,7 +1110,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = currentIndex + 1;
 					else
-						MovableHashKeys[currentIndex + 1] = currentIndex + 1;
+						EatableHashKeys[currentIndex + 1] = currentIndex + 1;
 				}
 				// EN PASSANT:
 				// IF IT'S RELATED TO VALID INDEXES AROUND ENEMY FIRST MOVE THEN IT'S GUARANTEED THAT THE INDEX IS VALID
@@ -1128,7 +1121,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 						if (bUseHash == false)
 							MovableIndices[ActiveIndex++] = currentIndex - 13;
 						else
-							MovableHashKeys[currentIndex - 13] = currentIndex - 13;
+							EatableHashKeys[currentIndex - 13] = currentIndex - 13;
 					}
 					bEnPassant = true;
 				}
@@ -1139,7 +1132,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 						if (bUseHash == false)
 							MovableIndices[ActiveIndex++] = currentIndex + 15;
 						else
-							MovableHashKeys[currentIndex + 15] = currentIndex + 15;
+							EatableHashKeys[currentIndex + 15] = currentIndex + 15;
 					}
 					bEnPassant = true;
 				}
@@ -1160,7 +1153,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = eatUp;
 					else
-						MovableHashKeys[eatUp] = eatUp;
+						EatableHashKeys[eatUp] = eatUp;
 				}
 			}
 		}
@@ -1174,13 +1167,13 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = eatDown;
 					else
-						MovableHashKeys[eatDown] = eatDown;
+						EatableHashKeys[eatDown] = eatDown;
 				}
 			}
 		}
 	}
 
-	else if (playerTurn == 3)
+	else if (attackerTurn == 3)
 	{ // for top team - POSITIVE
 		/* THE MOVE TO MOVE + EN PASSANT */
 		// TODO: LATER IF WE WANT TO ADD MOVING BACK FROM FRIEND TEAM, THEN WE HAVE TO USE TIGHT CONDITION
@@ -1196,7 +1189,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = currentIndex - 14;
 					else
-						MovableHashKeys[currentIndex - 14] = currentIndex - 14;
+						EatableHashKeys[currentIndex - 14] = currentIndex - 14;
 				}
 				// EN PASSANT:
 				else if (pieces[IndexInPieceVectorFromBoardIndex[currentIndex - 14]]->value == -1)
@@ -1206,7 +1199,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 						if (bUseHash == false)
 							MovableIndices[ActiveIndex++] = currentIndex - 15;
 						else
-							MovableHashKeys[currentIndex - 15] = currentIndex - 15;
+							EatableHashKeys[currentIndex - 15] = currentIndex - 15;
 					}
 					bEnPassant = true;
 				}
@@ -1217,7 +1210,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 						if (bUseHash == false)
 							MovableIndices[ActiveIndex++] = currentIndex - 13;
 						else
-							MovableHashKeys[currentIndex - 13] = currentIndex - 13;
+							EatableHashKeys[currentIndex - 13] = currentIndex - 13;
 					}
 					bEnPassant = true;
 				}
@@ -1240,7 +1233,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = eatRight;
 					else
-						MovableHashKeys[eatRight] = eatRight;
+						EatableHashKeys[eatRight] = eatRight;
 				}
 			}
 		}
@@ -1253,13 +1246,13 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = eatLeft;
 					else
-						MovableHashKeys[eatLeft] = eatLeft;
+						EatableHashKeys[eatLeft] = eatLeft;
 				}
 			}
 		}
 	}
 
-	else if (playerTurn == -4)
+	else if (attackerTurn == -4)
 	{ // for right team - NEGATIVE
 		const int16 moveLeftThreshold = LeftThresholdOfIndex(currentIndex);
 		/* THE MOVE TO MOVE */
@@ -1272,7 +1265,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = currentIndex - 1;
 					else
-						MovableHashKeys[currentIndex - 1] = currentIndex - 1;
+						EatableHashKeys[currentIndex - 1] = currentIndex - 1;
 				}
 				// EN PASSANT: ANALYZE ENEMY PAWN FIRST MOVE STATUS
 				else if (pieces[IndexInPieceVectorFromBoardIndex[currentIndex - 1]]->value == 1)
@@ -1282,7 +1275,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 						if (bUseHash == false)
 							MovableIndices[ActiveIndex++] = currentIndex - 15;
 						else
-							MovableHashKeys[currentIndex - 15] = currentIndex - 15;
+							EatableHashKeys[currentIndex - 15] = currentIndex - 15;
 					}
 					bEnPassant = true;
 				}
@@ -1293,7 +1286,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 						if (bUseHash == false)
 							MovableIndices[ActiveIndex++] = currentIndex + 13;
 						else
-							MovableHashKeys[currentIndex + 13] = currentIndex + 13;
+							EatableHashKeys[currentIndex + 13] = currentIndex + 13;
 					}
 					bEnPassant = true;
 				}
@@ -1317,7 +1310,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = eatUp;
 					else
-						MovableHashKeys[eatUp] = eatUp;
+						EatableHashKeys[eatUp] = eatUp;
 				}
 			}
 		}
@@ -1330,7 +1323,7 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 					if (bUseHash == false)
 						MovableIndices[ActiveIndex++] = eatDown;
 					else
-						MovableHashKeys[eatDown] = eatDown;
+						EatableHashKeys[eatDown] = eatDown;
 				}
 			}
 		}
@@ -1340,44 +1333,44 @@ void ACustomPlayerController::GetMovableIndicesPawn(int16& startStorageIndex, co
 	// if the current piece having first move then it's guaranteed to be valid, so we don't have to validate with condition check again
 	if (pieces[IndexInPieceVectorFromBoardIndex[currentIndex]]->firstMove == 1) // FIRST MOVE
 	{
-		if (playerTurn == 1)
+		if (attackerTurn == 1)
 		{ // FOR BOTTOM TEAM ONLY
 			if (IndexInPieceVectorFromBoardIndex[currentIndex + 14] == -1 && IndexInPieceVectorFromBoardIndex[currentIndex + 28] == -1)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = currentIndex + 28;
 				else
-					MovableHashKeys[currentIndex + 28] = currentIndex + 28;
+					EatableHashKeys[currentIndex + 28] = currentIndex + 28;
 			}
 		}
-		else if (playerTurn == -2)
+		else if (attackerTurn == -2)
 		{ // FOR LEFT TEAM ONLY
 			if (IndexInPieceVectorFromBoardIndex[currentIndex + 1] == -1 && IndexInPieceVectorFromBoardIndex[currentIndex + 2] == -1)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = currentIndex + 2;
 				else
-					MovableHashKeys[currentIndex + 2] = currentIndex + 2;
+					EatableHashKeys[currentIndex + 2] = currentIndex + 2;
 			}
 		}
-		else if (playerTurn == 3)
+		else if (attackerTurn == 3)
 		{ // FOR LEFT TEAM ONLY
 			if (IndexInPieceVectorFromBoardIndex[currentIndex - 14] == -1 && IndexInPieceVectorFromBoardIndex[currentIndex - 28] == -1)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = currentIndex - 28;
 				else
-					MovableHashKeys[currentIndex - 28] = currentIndex - 28;
+					EatableHashKeys[currentIndex - 28] = currentIndex - 28;
 			}
 		}
-		else if (playerTurn == -4)
+		else if (attackerTurn == -4)
 		{ // FOR LEFT TEAM ONLY
 			if (IndexInPieceVectorFromBoardIndex[currentIndex - 1] == -1 && IndexInPieceVectorFromBoardIndex[currentIndex - 2] == -1)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = currentIndex - 2;
 				else
-					MovableHashKeys[currentIndex - 2] = currentIndex - 2;
+					EatableHashKeys[currentIndex - 2] = currentIndex - 2;
 			}
 		}
 	}
@@ -1415,7 +1408,7 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 			if (bUseHash == false)
 				MovableIndices[ActiveIndex++] = goLeft;
 			else
-				MovableHashKeys[goLeft] = goLeft;
+				EatableHashKeys[goLeft] = goLeft;
 			goLeft--;
 		}
 		else
@@ -1429,7 +1422,7 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goLeft;
 				else
-					MovableHashKeys[goLeft] = goLeft;
+					EatableHashKeys[goLeft] = goLeft;
 				break;
 			}
 		}
@@ -1442,7 +1435,7 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 			if (bUseHash == false)
 				MovableIndices[ActiveIndex++] = goRight;
 			else
-				MovableHashKeys[goRight] = goRight;
+				EatableHashKeys[goRight] = goRight;
 			goRight++;
 		}
 		else
@@ -1456,7 +1449,7 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goRight;
 				else
-					MovableHashKeys[goRight] = goRight;
+					EatableHashKeys[goRight] = goRight;
 				break;
 			}
 		}
@@ -1469,7 +1462,7 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 			if (bUseHash == false)
 				MovableIndices[ActiveIndex++] = goUp;
 			else
-				MovableHashKeys[goUp] = goUp;
+				EatableHashKeys[goUp] = goUp;
 			goUp += 14;
 		}
 		else
@@ -1483,7 +1476,7 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goUp;
 				else
-					MovableHashKeys[goUp] = goUp;
+					EatableHashKeys[goUp] = goUp;
 				break;
 			}
 		}
@@ -1496,7 +1489,7 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 			if (bUseHash == false)
 				MovableIndices[ActiveIndex++] = goDown;
 			else
-				MovableHashKeys[goDown] = goDown;
+				EatableHashKeys[goDown] = goDown;
 			goDown -= 14;
 		}
 		else
@@ -1510,7 +1503,7 @@ void ACustomPlayerController::GetMovableIndicesRook(int16& startStorageIndex, co
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goDown;
 				else
-					MovableHashKeys[goDown] = goDown;
+					EatableHashKeys[goDown] = goDown;
 				break;
 			}
 		}
@@ -1549,12 +1542,12 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 	const int16 twoRowDownLeftThreshold = currentRowLeftThreshold - 28;
 	const int16 twoRowDownRightThreshold = currentRowRightThreshold - 28;
 
-	UE_LOG(LogTemp, Warning, TEXT("current Row left thres: %d"), currentRowLeftThreshold);
-	UE_LOG(LogTemp, Warning, TEXT("current Row right thres: %d"), currentRowRightThreshold);
-	UE_LOG(LogTemp, Warning, TEXT("L1RowDownRight: %d"), L1RowDownRight);
-	UE_LOG(LogTemp, Warning, TEXT("L1RowUpRight: %d"), L1RowUpRight);
-	UE_LOG(LogTemp, Warning, TEXT("oneRowUpRight Threshold: %d"), oneRowUpRightThreshold);
-	UE_LOG(LogTemp, Warning, TEXT("oneRowUpLeft Threshold: %d"), oneRowUpLeftThreshold);
+	//UE_LOG(LogTemp, Warning, TEXT("current Row left thres: %d"), currentRowLeftThreshold);
+	//UE_LOG(LogTemp, Warning, TEXT("current Row right thres: %d"), currentRowRightThreshold);
+	//UE_LOG(LogTemp, Warning, TEXT("L1RowDownRight: %d"), L1RowDownRight);
+	//UE_LOG(LogTemp, Warning, TEXT("L1RowUpRight: %d"), L1RowUpRight);
+	//UE_LOG(LogTemp, Warning, TEXT("oneRowUpRight Threshold: %d"), oneRowUpRightThreshold);
+	//UE_LOG(LogTemp, Warning, TEXT("oneRowUpLeft Threshold: %d"), oneRowUpLeftThreshold);
 
 	// all are non-strict condition
 	if (twoRowUpRightThreshold <= 195 && L2RowUpRight <= twoRowUpRightThreshold)
@@ -1566,14 +1559,14 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowUpRight;
 				else
-					MovableHashKeys[L2RowUpRight] = L2RowUpRight;
+					EatableHashKeys[L2RowUpRight] = L2RowUpRight;
 			}
 			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowUpRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowUpRight;
 				else
-					MovableHashKeys[L2RowUpRight] = L2RowUpRight;
+					EatableHashKeys[L2RowUpRight] = L2RowUpRight;
 			}
 		}
 	}
@@ -1587,14 +1580,14 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowUpLeft;
 				else
-					MovableHashKeys[L2RowUpLeft] = L2RowUpLeft;
+					EatableHashKeys[L2RowUpLeft] = L2RowUpLeft;
 			}
 			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowUpLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowUpLeft;
 				else
-					MovableHashKeys[L2RowUpLeft] = L2RowUpLeft;
+					EatableHashKeys[L2RowUpLeft] = L2RowUpLeft;
 			}
 		}
 	}
@@ -1608,14 +1601,14 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowUpRight;
 				else
-					MovableHashKeys[L1RowUpRight] = L1RowUpRight;
+					EatableHashKeys[L1RowUpRight] = L1RowUpRight;
 			}
 			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowUpRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowUpRight;
 				else
-					MovableHashKeys[L1RowUpRight] = L1RowUpRight;
+					EatableHashKeys[L1RowUpRight] = L1RowUpRight;
 			}
 		}
 	}
@@ -1629,14 +1622,14 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowUpLeft;
 				else
-					MovableHashKeys[L1RowUpLeft] = L1RowUpLeft;
+					EatableHashKeys[L1RowUpLeft] = L1RowUpLeft;
 			}
 			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowUpLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowUpLeft;
 				else
-					MovableHashKeys[L1RowUpLeft] = L1RowUpLeft;
+					EatableHashKeys[L1RowUpLeft] = L1RowUpLeft;
 			}
 		}
 	}
@@ -1650,14 +1643,14 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowDownRight;
 				else
-					MovableHashKeys[L2RowDownRight] = L2RowDownRight;
+					EatableHashKeys[L2RowDownRight] = L2RowDownRight;
 			}
 			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowDownRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowDownRight;
 				else
-					MovableHashKeys[L2RowDownRight] = L2RowDownRight;
+					EatableHashKeys[L2RowDownRight] = L2RowDownRight;
 			}
 		}
 	}
@@ -1670,14 +1663,14 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowDownLeft;
 				else
-					MovableHashKeys[L2RowDownLeft] = L2RowDownLeft;
+					EatableHashKeys[L2RowDownLeft] = L2RowDownLeft;
 			}
 			else if (pieces[IndexInPieceVectorFromBoardIndex[L2RowDownLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L2RowDownLeft;
 				else
-					MovableHashKeys[L2RowDownLeft] = L2RowDownLeft;
+					EatableHashKeys[L2RowDownLeft] = L2RowDownLeft;
 			}
 		}
 	}
@@ -1690,14 +1683,14 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowDownRight;
 				else
-					MovableHashKeys[L1RowDownRight] = L1RowDownRight;
+					EatableHashKeys[L1RowDownRight] = L1RowDownRight;
 			}
 			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowDownRight]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowDownRight;
 				else
-					MovableHashKeys[L1RowDownRight] = L1RowDownRight;
+					EatableHashKeys[L1RowDownRight] = L1RowDownRight;
 			}
 		}
 	}
@@ -1711,20 +1704,20 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowDownLeft;
 				else
-					MovableHashKeys[L1RowDownLeft] = L1RowDownLeft;
+					EatableHashKeys[L1RowDownLeft] = L1RowDownLeft;
 			}
 			else if (pieces[IndexInPieceVectorFromBoardIndex[L1RowDownLeft]]->value * attackerTurn < 0)
 			{
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = L1RowDownLeft;
 				else
-					MovableHashKeys[L1RowDownLeft] = L1RowDownLeft;
+					EatableHashKeys[L1RowDownLeft] = L1RowDownLeft;
 			}
 		}
 	}
 
-	for (int i = 0; i < ActiveIndex; i++)
-		UE_LOG(LogTemp, Warning, TEXT("Indices for knights: %d"), MovableIndices[i]);
+	//for (int i = 0; i < ActiveIndex; i++)
+	//	UE_LOG(LogTemp, Warning, TEXT("Indices for knights: %d"), MovableIndices[i]);
 
 }
 
@@ -1745,13 +1738,13 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 	{
 		if (IndexInPieceVectorFromBoardIndex[goUpLeft] == -1)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("goUpLeft: Index to Add: %d"), goUpLeft);
+			//UE_LOG(LogTemp, Warning, TEXT("goUpLeft: Index to Add: %d"), goUpLeft);
 			// TODO: APPLY THIS 'USE HASH' FOR ALL THE GET MOVABLES FUNCTIONS BELOW
 			if (bUseHash == false)
 				// shift left 1 unit relatively to current position (which already shift left 1 unit compared to position before it)
 				MovableIndices[ActiveIndex++] = goUpLeft;
 			else
-				MovableHashKeys[goUpLeft] = goUpLeft;
+				EatableHashKeys[goUpLeft] = goUpLeft;
 
 			goUpLeft = goUpLeft + 13;
 		}
@@ -1765,7 +1758,7 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goUpLeft;
 				else
-					MovableHashKeys[goUpLeft] = goUpLeft;
+					EatableHashKeys[goUpLeft] = goUpLeft;
 				break;
 			}
 		}
@@ -1775,12 +1768,12 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 	{
 		if (IndexInPieceVectorFromBoardIndex[goUpRight] == -1)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("goUpRight: Index to Add: %d"), goUpRight);
+			//UE_LOG(LogTemp, Warning, TEXT("goUpRight: Index to Add: %d"), goUpRight);
 			// go up and shift left 1 unit relatively to current position (which already shift left 1 unit compared to the position before it - meaning that total deviation compared to original position already increases)
 			if (bUseHash == false)
 				MovableIndices[ActiveIndex++] = goUpRight;
 			else
-				MovableHashKeys[goUpRight] = goUpRight;
+				EatableHashKeys[goUpRight] = goUpRight;
 			goUpRight = goUpRight + 15;
 		}
 		else
@@ -1794,7 +1787,7 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 					// shift left 1 unit relatively to current position (which already shift left 1 unit compared to position before it)
 					MovableIndices[ActiveIndex++] = goUpRight;
 				else
-					MovableHashKeys[goUpRight] = goUpRight;
+					EatableHashKeys[goUpRight] = goUpRight;
 				break;
 			}
 		}
@@ -1804,12 +1797,12 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 	{
 		if (IndexInPieceVectorFromBoardIndex[goDownLeft] == -1)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("goDownLeft: Index to Add: %d"), goDownLeft);
+			//UE_LOG(LogTemp, Warning, TEXT("goDownLeft: Index to Add: %d"), goDownLeft);
 			// shift left 1 unit relatively to current position (which already shift left 1 unit compared to position before it)
 			if (bUseHash == false)
 				MovableIndices[ActiveIndex++] = goDownLeft;
 			else
-				MovableHashKeys[goDownLeft] = goDownLeft;
+				EatableHashKeys[goDownLeft] = goDownLeft;
 			goDownLeft = goDownLeft - 15;
 		}
 		else
@@ -1822,7 +1815,7 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 					// shift left 1 unit relatively to current position (which already shift left 1 unit compared to position before it)
 					MovableIndices[ActiveIndex++] = goDownLeft;
 				else
-					MovableHashKeys[goDownLeft] = goDownLeft;
+					EatableHashKeys[goDownLeft] = goDownLeft;
 				break;
 			}
 		}
@@ -1832,12 +1825,12 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 	{
 		if (IndexInPieceVectorFromBoardIndex[goDownRight] == -1)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("goDownRight: Index to Add: %d"), goDownRight);
+			//UE_LOG(LogTemp, Warning, TEXT("goDownRight: Index to Add: %d"), goDownRight);
 			// shift left 1 unit relatively to current position (which already shift left 1 unit compared to position before it)
 			if (bUseHash == false)
 				MovableIndices[ActiveIndex++] = goDownRight;
 			else
-				MovableHashKeys[goDownRight] = goDownRight;
+				EatableHashKeys[goDownRight] = goDownRight;
 			goDownRight = goDownRight - 13;
 		}
 		else
@@ -1849,7 +1842,7 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 				if (bUseHash == false)
 					MovableIndices[ActiveIndex++] = goDownRight;
 				else
-					MovableHashKeys[goDownRight] = goDownRight;
+					EatableHashKeys[goDownRight] = goDownRight;
 				break;
 			}
 		}
@@ -1950,58 +1943,58 @@ void ACustomPlayerController::GetMovableIndicesKing(int16& startStorageIndex, co
 		if (kingUpLeft <= 195 && kingUpLeft >= OneRowUpLeftThreshold && IndexInPieceVectorFromBoardIndex[kingUpLeft] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingUpLeft] == -1)
-				MovableHashKeys[kingUpLeft] = kingUpLeft;
+				EatableHashKeys[kingUpLeft] = kingUpLeft;
 			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpLeft]]->value * attackerTurn < 0)
-				MovableHashKeys[kingUpLeft] = kingUpLeft;
+				EatableHashKeys[kingUpLeft] = kingUpLeft;
 		}
 		if (kingUp <= 195 && IndexInPieceVectorFromBoardIndex[kingUp] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingUp] == -1)
-				MovableHashKeys[kingUp] = kingUp;
+				EatableHashKeys[kingUp] = kingUp;
 			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUp]]->value * attackerTurn < 0)
-				MovableHashKeys[kingUp] = kingUp;
+				EatableHashKeys[kingUp] = kingUp;
 		}
 		if (OneRowUpRightThreshold <= 195 && kingUpRight <= OneRowUpRightThreshold && IndexInPieceVectorFromBoardIndex[kingUpRight] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingUpRight] == -1)
-				MovableHashKeys[kingUpRight] = kingUpRight;
+				EatableHashKeys[kingUpRight] = kingUpRight;
 			else if (pieces[IndexInPieceVectorFromBoardIndex[kingUpRight]]->value * attackerTurn < 0)
-				MovableHashKeys[kingUpRight] = kingUpRight;
+				EatableHashKeys[kingUpRight] = kingUpRight;
 		}
 		if (kingLeft >= currentRowLeftThreshold && IndexInPieceVectorFromBoardIndex[kingLeft] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingLeft] == -1)
-				MovableHashKeys[kingLeft] = kingLeft;
+				EatableHashKeys[kingLeft] = kingLeft;
 			else if (pieces[IndexInPieceVectorFromBoardIndex[kingLeft]]->value * attackerTurn < 0)
-				MovableHashKeys[kingLeft] = kingLeft;
+				EatableHashKeys[kingLeft] = kingLeft;
 		}
 		if (kingRight <= currentRowRightThreshold && IndexInPieceVectorFromBoardIndex[kingRight] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingRight] == -1)
-				MovableHashKeys[kingRight] = kingRight;
+				EatableHashKeys[kingRight] = kingRight;
 			else if (pieces[IndexInPieceVectorFromBoardIndex[kingRight]]->value * attackerTurn < 0)
-				MovableHashKeys[kingRight] = kingRight;
+				EatableHashKeys[kingRight] = kingRight;
 		}
 		if (OneRowDownLeftThreshold >= 0 && kingDownLeft >= OneRowDownLeftThreshold && IndexInPieceVectorFromBoardIndex[kingDownLeft] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingDownLeft] == -1)
-				MovableHashKeys[kingDownLeft] = kingDownLeft;
+				EatableHashKeys[kingDownLeft] = kingDownLeft;
 			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownLeft]]->value * attackerTurn < 0)
-				MovableHashKeys[kingDownLeft] = kingDownLeft;
+				EatableHashKeys[kingDownLeft] = kingDownLeft;
 		}
 		if (kingDown >= 0 && IndexInPieceVectorFromBoardIndex[kingDown] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingDown] == -1)
-				MovableHashKeys[kingDown] = kingDown;
+				EatableHashKeys[kingDown] = kingDown;
 			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDown]]->value * attackerTurn < 0)
-				MovableHashKeys[kingDown] = kingDown;
+				EatableHashKeys[kingDown] = kingDown;
 		}
 		if (kingDownRight >= 0 && kingDownRight <= OneRowDownRightThreshold && IndexInPieceVectorFromBoardIndex[kingDownRight] != -2)
 		{
 			if (IndexInPieceVectorFromBoardIndex[kingDownRight] == -1)
-				MovableHashKeys[kingDownRight] = kingDownRight;
+				EatableHashKeys[kingDownRight] = kingDownRight;
 			else if (pieces[IndexInPieceVectorFromBoardIndex[kingDownRight]]->value * attackerTurn < 0)
-				MovableHashKeys[kingDownRight] = kingDownRight;
+				EatableHashKeys[kingDownRight] = kingDownRight;
 		}
 	}
 
@@ -2078,8 +2071,9 @@ bool ACustomPlayerController::isClick1P4IndexValid(const int16& hitIndexOn196)
 // Because after a Valid Click 1 we've already got MovableIndices of that specific player and piece -> just need 1 check for all kinds of player
 bool ACustomPlayerController::isClick2MoveIndexValid(const int16& hitIndexOn196)
 {
-	UE_LOG(LogTemp, Warning, TEXT("hitINdexOn196: %d"), hitIndexOn196);
-	UE_LOG(LogTemp, Warning, TEXT("ActiveIndex: %d"), ActiveIndex);
+	//UE_LOG(LogTemp, Warning, TEXT("hitINdexOn196: %d"), hitIndexOn196);
+	//UE_LOG(LogTemp, Warning, TEXT("ActiveIndex: %d"), ActiveIndex);
+
 	// see if the MovableIndices contains the hitIndexOn196
 	if (ActiveIndex == 0) return false; // if no move available, we just mark as false so that it returns to waiting from click1
 	// TODO: fix: see if movable indices WITHIN ACTIVE INDEX RANGE contains the value
@@ -2143,7 +2137,7 @@ void ACustomPlayerController::spawnBottomActors()
 		pieces.Top()->SetMaterialInactive(1);
 		pieces.Top()->value = pieceValue;
 		pieces.Top()->indexOnBoard = LocationToIndex(FVector(x, y, 0));
-		UE_LOG(LogTemp, Warning, (TEXT("indexOnboard: %d")), pieces.Top()->indexOnBoard);
+		//UE_LOG(LogTemp, Warning, (TEXT("indexOnboard: %d")), pieces.Top()->indexOnBoard);
 		y += 400;
 	}
 	++pieceValue;
@@ -2261,7 +2255,7 @@ void ACustomPlayerController::spawnLeftActors()
 	pieces.Add(GetWorld()->SpawnActor<AQueenActor>(FVector(x, y, 0), FRotator(0, 90, 0)));
 	pieces.Top()->SetMaterialInactive(2);
 	pieces.Top()->value = pieceValue;
-	pieces.Top()->indexOnBoard = 6;
+	pieces.Top()->indexOnBoard = 84;
 
 	pieceValue--;
 
@@ -2270,7 +2264,7 @@ void ACustomPlayerController::spawnLeftActors()
 	pieces.Add(GetWorld()->SpawnActor<AKingActor>(FVector(x, y, 0), FRotator::ZeroRotator));
 	pieces.Top()->SetMaterialInactive(2);
 	pieces.Top()->value = pieceValue;
-	pieces.Top()->indexOnBoard = 7;
+	pieces.Top()->indexOnBoard = 98;
 
 }
 
@@ -2426,7 +2420,7 @@ void ACustomPlayerController::BeginPlay()
 
 	for (int i = 0; i < pieces.Num(); i++)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Value in array: %d. First move status: %d"), pieces[i]->value, pieces[i]->firstMove);
+		UE_LOG(LogTemp, Warning, TEXT("Value in array: %d. First move status: %d. Index On Board: %d"), pieces[i]->value, pieces[i]->firstMove, pieces[i]->indexOnBoard);
 	}
 
 	/*
