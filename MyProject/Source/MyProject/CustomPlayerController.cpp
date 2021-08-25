@@ -80,21 +80,8 @@ void ACustomPlayerController::OnLeftMouseClick()
 	GetHitResultUnderCursor(ECollisionChannel::ECC_WorldDynamic, true, OUT TraceResult);
 	FVector hitLocation = TraceResult.Location;
 
-	if (playerTurn == 1)
-	{   // the events happening in Click1
-		if (bP1Checked && !bP3Checked)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player1 is currently being checkedMate!"));
-		}
-		else if (bP3Checked && !bP1Checked)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player3 is currently being checkedMate!"));
-		}
-		else if (bP1Checked && bP3Checked)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player1 and 3 are currently being checkedMate!"));
-		}
-
+	if (playerTurn == 1)	// no one gets checkMate right in turn 1 of the game thus we don't have to place a checkMate announcement here. We will just get it from the last of turn 4
+	{ // the events happening in Click1
 		if (clickCount == 0)
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("Left mouse click 1 is triggered!"));
@@ -234,6 +221,19 @@ void ACustomPlayerController::OnLeftMouseClick()
 // KhanhCD Modify End 2021-08-22
 
 				playerTurn = -2;
+				/// announce right when turn is changed
+				if (bP2Checked && !bP4Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player2 is currently being checkedMate!"));
+				}
+				else if (bP4Checked && !bP2Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player4 is currently being checkedMate!"));
+				}
+				else if (bP2Checked && bP4Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player2 and 4 are currently being checkedMate!"));
+				}
 			}
 		}
 	}
@@ -362,6 +362,20 @@ void ACustomPlayerController::OnLeftMouseClick()
 				// KhanhCD Modify End 2021-08-22
 
 				playerTurn = 3;
+
+				// check after the turn is changed
+				if (bP1Checked && !bP3Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player1 is currently being checkedMate!"));
+				}
+				else if (bP3Checked && !bP1Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player3 is currently being checkedMate!"));
+				}
+				else if (bP1Checked && bP3Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player1 and 3 are currently being checkedMate!"));
+				}
 			}
 		}
 	}
@@ -454,6 +468,18 @@ void ACustomPlayerController::OnLeftMouseClick()
 						GetMovableIndicesBishop(startStorageIndex, hitIndexOn196_1, false, playerTurn);
 						HighlightMovableIndices(0);
 					}
+				if (bP1Checked && !bP3Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player1 is currently being checkedMate!"));
+				}
+				else if (bP3Checked && !bP1Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player3 is currently being checkedMate!"));
+				}
+				else if (bP1Checked && bP3Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player1 and 3 are currently being checkedMate!"));
+				}
 					else if (isQueen(hitValue2))
 					{
 						GetMovableIndicesQueen(startStorageIndex, hitIndexOn196_1, false, playerTurn);
@@ -486,6 +512,19 @@ void ACustomPlayerController::OnLeftMouseClick()
 				// KhanhCD Modify End 2021-08-22
 
 				playerTurn = -4;
+				/// check instantly when the turn changed to player 4
+				if (bP2Checked && !bP4Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player2 is currently being checkedMate!"));
+				}
+				else if (bP4Checked && !bP2Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player4 is currently being checkedMate!"));
+				}
+				else if (bP2Checked && bP4Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player2 and 4 are currently being checkedMate!"));
+				}
 			}
 		}
 	}
@@ -610,6 +649,19 @@ void ACustomPlayerController::OnLeftMouseClick()
 				// KhanhCD Modify End 2021-08-22
 
 				playerTurn = 1;
+				/// check instantly when the turn changed to player 1
+				if (bP1Checked && !bP3Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player1 is currently being checkedMate!"));
+				}
+				else if (bP3Checked && !bP1Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player3 is currently being checkedMate!"));
+				}
+				else if (bP1Checked && bP3Checked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player1 and 3 are currently being checkedMate!"));
+				}
 			}
 		}
 	}
@@ -952,14 +1004,14 @@ void ACustomPlayerController::checkMateToThisTeam()
 			if (pieces[i]->indexOnBoard != -1) 
 				GetMovableIndicesBishop(ActiveIndex, pieces[i]->indexOnBoard, true, 1);
 		}
-		if (pieces[14]->indexOnBoard != -1) 
+		if (pieces[14]->indexOnBoard != -1)
 			GetMovableIndicesQueen(ActiveIndex, pieces[14]->indexOnBoard, true, 1);
 		if (pieces[15]->indexOnBoard != -1) 
 			GetMovableIndicesKing(ActiveIndex, pieces[15]->indexOnBoard, true, 1);
 
 		/* TEAM 3 */
 		for (int i = 16; i <= 23; i++)
-		{
+		{ // getting wrong movables on this - getting 97 (indice of player 4 King?)
 			if (pieces[i]->indexOnBoard != -1) 
 				GetMovableIndicesPawn(ActiveIndex, pieces[i]->indexOnBoard, true, 3);
 		}
@@ -1721,7 +1773,7 @@ void ACustomPlayerController::GetMovableIndicesKnight(int16& startStorageIndex, 
 
 }
 
-// TODO: FINISH TEAM EATING MOVE 
+// TODO:  MUST DO THE TIGHT THRESHOLD FOR THIS! 
 void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerTurn)
 {
 	int16 goUpLeft = currentIndex + 13,
@@ -1735,9 +1787,18 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 	//In here we've already got the vertical threshold
 	// for POSTIVE TEAM
 	while (goUpLeft <= 195 && IndexInPieceVectorFromBoardIndex[goUpLeft] != -2)
-	{
+	{ // this is not detecting the enemy queen value and break?
 		if (IndexInPieceVectorFromBoardIndex[goUpLeft] == -1)
 		{
+			// TODO: we can think of going until column 0 (in 2D sense) could be translated into 1D as % 14 == 0? And we can use that as the tight threshold (instead of having to use real tight threshold)
+			if (goUpLeft % 14 == 0)
+			{
+				if (bUseHash == false)
+					MovableIndices[ActiveIndex++] = goUpLeft;
+				else
+					EatableHashKeys[goUpLeft] = goUpLeft;
+				break;
+			}
 			//UE_LOG(LogTemp, Warning, TEXT("goUpLeft: Index to Add: %d"), goUpLeft);
 			// TODO: APPLY THIS 'USE HASH' FOR ALL THE GET MOVABLES FUNCTIONS BELOW
 			if (bUseHash == false)
@@ -1745,11 +1806,11 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 				MovableIndices[ActiveIndex++] = goUpLeft;
 			else
 				EatableHashKeys[goUpLeft] = goUpLeft;
-
+			// this is wrongly calculated leading to 97 from '84' + 13 (end of board for queen to go UP left, overflow to 97 after + 13)
 			goUpLeft = goUpLeft + 13;
 		}
 		else
-		{
+		{ /// these are tighter conditions than the goUpRight % 14 == 0, thus we don't have to overlay that condition on top
 			// TODO: we get one more index of the enemy team into movables and ONLY AFTERWARDS do we break
 			if (pieces[IndexInPieceVectorFromBoardIndex[goUpLeft]]->value * attackerTurn > 0)
 				break;
@@ -1765,9 +1826,17 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 	}
 
 	while (goUpRight <= 195 && IndexInPieceVectorFromBoardIndex[goUpRight] != -2)
-	{
+	{ // similar mindset as above, we can use % 14 == 13 as the right threshold of reaching end column
 		if (IndexInPieceVectorFromBoardIndex[goUpRight] == -1)
 		{
+			if (goUpRight % 14 == 13)
+			{
+				if (bUseHash == false)
+					MovableIndices[ActiveIndex++] = goUpRight;
+				else
+					EatableHashKeys[goUpRight] = goUpRight;
+				break;
+			}
 			//UE_LOG(LogTemp, Warning, TEXT("goUpRight: Index to Add: %d"), goUpRight);
 			// go up and shift left 1 unit relatively to current position (which already shift left 1 unit compared to the position before it - meaning that total deviation compared to original position already increases)
 			if (bUseHash == false)
@@ -1777,8 +1846,7 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 			goUpRight = goUpRight + 15;
 		}
 		else
-		{
-			// TODO: we get one more index of the enemy team into movables and ONLY AFTERWARDS do we break
+		{ /// these are tighter conditions than the goUpRight % 14 == 13, thus we don't have to overlay that condition on top
 			if (pieces[IndexInPieceVectorFromBoardIndex[goUpRight]]->value * attackerTurn > 0)
 				break;
 			if (pieces[IndexInPieceVectorFromBoardIndex[goUpRight]]->value * attackerTurn < 0)
@@ -1794,7 +1862,7 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 	}
 
 	while (goDownLeft >= 0 && IndexInPieceVectorFromBoardIndex[goDownLeft] != -2)
-	{
+	{ // same mindset as above
 		if (IndexInPieceVectorFromBoardIndex[goDownLeft] == -1)
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("goDownLeft: Index to Add: %d"), goDownLeft);
@@ -1849,7 +1917,6 @@ void ACustomPlayerController::GetMovableIndicesBishop(int16& storageIndex, const
 	}
 }
 
-// TODO: THIS IS CAUSING SEG FAULT
 void ACustomPlayerController::GetMovableIndicesQueen(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerTurn)
 {
 	GetMovableIndicesBishop(startStorageIndex, currentIndex, bUseHash, attackerTurn);
