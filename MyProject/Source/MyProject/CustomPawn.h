@@ -30,7 +30,6 @@ protected:
 
 	// Call every frame
 	virtual void Tick(float DeltaTime) override;
-
 public:	
 
 	UPROPERTY()

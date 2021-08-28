@@ -10,9 +10,6 @@ APawnActor::APawnActor()
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-	// MOVE CHART: 0 - no special move left, 1 - first move of 3, 2 - prey for en passant
-	firstMove = 1;
-
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>PawnMeshAsset(TEXT("StaticMesh'/Game/DuChamp/Pawn_DuChamp.Pawn_DuChamp'"));

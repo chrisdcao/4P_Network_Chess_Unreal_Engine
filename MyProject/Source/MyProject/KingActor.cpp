@@ -10,8 +10,6 @@ AKingActor::AKingActor()
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-	firstMove = 1;
-
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>KingMeshAsset(TEXT("StaticMesh'/Game/DuChamp/King_DuChamp.King_DuChamp'"));

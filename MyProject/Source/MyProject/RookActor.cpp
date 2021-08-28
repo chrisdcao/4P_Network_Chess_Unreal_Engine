@@ -12,8 +12,6 @@ ARookActor::ARookActor()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-	firstMove = 1;
-
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>RookMeshAsset(TEXT("StaticMesh'/Game/DuChamp/Rook_DuChamp.Rook_DuChamp'"));
 
 	if (RookMeshAsset.Succeeded())

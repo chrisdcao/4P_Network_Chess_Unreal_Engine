@@ -62,6 +62,6 @@ public:
 /* VALUES */
 	int16 value;
 	int16 indexOnBoard;
-	int8 firstMove = 0;
+	int8 moveCount = 0;
 
 };

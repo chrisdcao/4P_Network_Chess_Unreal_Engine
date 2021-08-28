@@ -21,5 +21,10 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+
+	void PostLogin(APlayerController* NewPlayer);
+
+public:
+	int8 count;
 	
 };

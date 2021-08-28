@@ -26,8 +26,7 @@ public:
 
 	ACustomPlayerController();
 
-
-	/************** EVENTS ON INPUT BINDINGS **************/
+	/************** EVENT BINDINGS ON INPUT **************/
 	UFUNCTION()
 	void OnLeftMouseClick();
 
@@ -70,10 +69,13 @@ public:
 	void checkMateToEnemyTeam(const int16& pieceIndex);
 
 	UFUNCTION()
-	void checkMateToThisTeam();
+	void checkMateToWholeTeamOfPlayerNumber(const int16& playerNumber);
 
 	UFUNCTION()
-	FVector Index196ToLocation(const int16& index);
+	bool checkMateFromPlayerXToPlayerY(const int16& playerX, const int16& playerY);
+
+	UFUNCTION()
+	FVector BoardIndexToLocation(const int16& index);
 
 	UFUNCTION()
 	bool isIndexValid(const int16& index);
@@ -126,25 +128,7 @@ public:
 	UFUNCTION()
 	int16 RightThresholdOfIndex(const int16& index);
 
-	//UFUNCTION()
-	//void SwitchPlayer();
-
-	//UFUNCTION(BlueprintPure)
-	//AChessPlayer* GetCurrentPlayer();
-
-	// TODO: remember to exchange/swap the ChessBoard_Values(mechanics) when move a Piece
-	//UFUNCTION(BlueprintCallable)
-	//void MakeMove();
-
-	//UFUNCTION(BlueprintCallable)
-	//void Cancel();
-
 	/************** MECHANIC FUNCTION **************/
-
-	//UFUNCTION()
-	//void GetMovableIndices(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
-	//UFUNCTION()
-	//void GetMovableIndicesPawn(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
 
 	UFUNCTION()
 	void GetMovableIndicesRook(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign); 
@@ -163,14 +147,6 @@ public:
 
 	UFUNCTION()
 	void GetMovableIndicesPawn(int16& startStorageIndex, const uint8& currentIndex, bool bUseHash, const int16& attackerPlayerSign); 
-	//UFUNCTION()
-	//void GetMovableIndicesKnight(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
-	//UFUNCTION()
-	//void GetMovableIndicesBishop(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
-	//UFUNCTION()
-	//void GetMovableIndicesKing(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
-	//UFUNCTION()
-	//void GetMovableIndicesQueen(int16 pieceValue, FVector clickLocation, TArray<int16> MovableIndices); 
 
 	UFUNCTION()
 	void spawnBottomActors();
@@ -181,24 +157,21 @@ public:
 	UFUNCTION()
 	void spawnRightActors();
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	/************** MECHANIC ARRAYS **************/
-	// We have to think of the real mechanics Array is SEPARATE from the Physical Board and Pieces
-	// So on each move we have to alter/change values of BOTH
-	TArray<int16, TFixedAllocator<196>> IndexInPieceVectorFromBoardIndex;		// this TInlineAllocator make sure to use the Stack(fixed) Memory for the first 196 items of TArray
+	TArray<int16, TFixedAllocator<196>> BoardOfPieceIndexInVector;		// this TInlineAllocator make sure to use the Stack(fixed) Memory for the first 196 items of TArray
 	TArray<uint8, TFixedAllocator<160>> MovableIndices;
-	TArray<AParentActor*, TFixedAllocator<64>> pieces;
-
+	TArray<AParentActor*, TFixedAllocator<64>> PiecesVector;
 	TArray<int16, TFixedAllocator<196>> EatableHashKeys;
-
 
 	/************** PHYSICAL PROPERTIES **************/
 
 	// Chessboard
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AChessBoard* Board;
 
 	// ChessPieces
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AChessPieces* Pieces;
 
 protected:
@@ -211,20 +184,20 @@ protected:
 	
 private:
 
-	int16 ActiveIndex;
 	int16 clickCount;
-	int16 hitIndexOn196_1;
-
-	bool bEnPassant;
-
+	int16 hitIndexOnBoard_1;
+	int16 ActiveIndex;
 	int8 playerTurn;
 
-	bool bHash;
-
-	uint8 playerBeingCheckedMate;
+	bool bEnPassant;
 
 	bool bP1Checked;
 	bool bP2Checked;
 	bool bP3Checked;
 	bool bP4Checked;
+
+	bool bP1Castling;
+	bool bP2Castling;
+	bool bP3Castling;
+	bool bP4Castling;
 };
