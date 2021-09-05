@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlayerPawn.h"
 #include "GameFramework/PlayerController.h"
 #include "CustomPlayerController2.generated.h"
 
@@ -28,5 +29,10 @@ public:
 	// ~Overrides: APlayerController
 	virtual void SetupInputComponent() override;
 	virtual void BeginPlay() override;
-	
+
+
+    FVector HitLocation;
+
+    APlayerPawn* controlledPawn;
+
 };

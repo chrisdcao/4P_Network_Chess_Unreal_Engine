@@ -3,25 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
-#include "CustomPLayerController.h"
-#include "GameFramework/SpringArmComponent.h"
-#include <Camera/CameraComponent.h>
-
 #include "SpawnManager.h"
-
-
-#include "CustomPawn.generated.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "PlayerPawn.generated.h"
 
 UCLASS()
-class MYPROJECT_API ACustomPawn : public APawn
+class MYPROJECT_API APlayerPawn : public APawn
 {
 	GENERATED_BODY()
 
 public:
 
 	// Sets default values for this pawn's properties
-	ACustomPawn();
+	APlayerPawn();
 
 protected:
 
@@ -33,10 +29,8 @@ protected:
 
 	// Call every frame
 	virtual void Tick(float DeltaTime) override;
-public:	
 
-	UPROPERTY()
-	ACustomPlayerController* PlayerController;
+public:	
 
 	/**** CAMERA VARIABLES ****/
 
@@ -54,12 +48,25 @@ public:
 
 	void YawCamera(float AxisValue);
 
+    UFUNCTION()
+    void OnLeftMouseClick(FVector hitLocation);
+
+    UFUNCTION(Server,Reliable)
+    void Server_OnLeftMouseClick(FVector hitLocation);
+
+    UFUNCTION(NetMulticast,Reliable)
+    void Multicast_OnLeftMouseClick(FVector hitLocation);
 	/**** END OF AMERA VARIABLES ****/
 
 	// Gate Logic
 	void GateOpen();
 
 	void GateClose();
+
+	/**** END OF CAMERA SPECS ****/
+
+    UPROPERTY()
+    ASpawnManager* chessManager;
 
 protected:
 
@@ -84,9 +91,6 @@ protected:
 	float ZoomUnits;	// Determines the number of units are added or subtracted from the target arm length 
 
 	float ZoomSmoothness;	// How smooth the zoom will be (Higher less smooth, lower more smooth 
-
-	/**** END OF CAMERA SPECS ****/
-
 
 private:
 

@@ -3,45 +3,30 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
-#include <algorithm>
-
-#include "GameFramework/PlayerController.h"
+#include "GameFramework/Actor.h"
 #include "Chessboard.h"
 #include "ChessPieces.h"
 #include "ParentActor.h"
+#include "SpawnManager.generated.h"
 
-#include "CustomPlayerController.generated.h"
-
-
-/**
- * 
- */
 UCLASS()
-class MYPROJECT_API ACustomPlayerController : public APlayerController
+class MYPROJECT_API ASpawnManager : public AActor
 {
 	GENERATED_BODY()
+	
 
-public:
+protected:
 
-	ACustomPlayerController();
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
-	/************** EVENT BINDINGS ON INPUT **************/
-	UFUNCTION()
-	void OnLeftMouseClick();
+	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void OnShiftLeftMouseClick();
+public:	
+	// Sets default values for this actor's properties
+	ASpawnManager();
 
 	/************** PHYSICAL INTERACT FUNCTION **************/
-
-/* 
-	SelectPiece() function contains:
-	1. Convert from the location -> index
-	2. Check to see if the piece is in our side (controllable)
-	3. Get the piece Value (and see what Type of Piece it is)
-	4. Highlight the selectable tiles
-*/
 
 	UFUNCTION()
 	void HighlightSelectedTileByLocation(const FVector& hitLocation);
@@ -157,48 +142,61 @@ public:
 	UFUNCTION()
 	void spawnRightActors();
 
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	/************** MECHANIC ARRAYS **************/
-	TArray<int16, TFixedAllocator<196>> BoardOfPieceIndexInVector;		// this TInlineAllocator make sure to use the Stack(fixed) Memory for the first 196 items of TArray
-	TArray<uint8, TFixedAllocator<160>> MovableIndices;
-	TArray<AParentActor*, TFixedAllocator<64>> PiecesVector;
-	TArray<int16, TFixedAllocator<196>> EatableHashKeys;
+    //UPROPERTY(Replicated)
+	TArray<int16> BoardOfPieceIndexInVector;
+
+    UPROPERTY()
+	TArray<uint8> MovableIndices;
+
+    //UPROPERTY(Replicated)
+	TArray<AParentActor*> PiecesVector;
+
+    UPROPERTY()
+	TArray<int16> EatableHashKeys;
 
 	/************** PHYSICAL PROPERTIES **************/
 
 	// Chessboard
-	UPROPERTY(Replicated)
+	//UPROPERTY(ReplicatedUsing=OnRep_Board)
 	AChessBoard* Board;
 
-	// ChessPieces
-	UPROPERTY(Replicated)
-	AChessPieces* Pieces;
+    UFUNCTION()
+    void OnLeftMouseClick(FVector hitLocation);
 
-protected:
+	// this might have to be in CustomGameMode for the game mode to monitor
+	int8 playerTurn;
 
-	/************** PLAYER INPUT SETUP **************/
-
-	// ~Overrides: APlayerController
-	virtual void SetupInputComponent() override;
-	virtual void BeginPlay() override;
-	
 private:
 
-	int16 clickCount;
+	int16 clickCount; // TODO: this should be migrated to Pawn instead of SpawnManager?
 	int16 hitIndexOnBoard_1;
 	int16 ActiveIndex;
-    int16 playerTurn;
 
+    UPROPERTY(VisibleAnywhere, Category="SpecialMoves|EnPassant")
 	bool bEnPassant;
 
+	// TODO: this might be to GameState? or PlayerState? In general, this is for ending the game rather than individual scores
+    // probably use Replicated Using = ? because we don't want update this over the net per frequency
+    UPROPERTY(VisibleAnywhere, Category="CheckingStatus|Player1")
 	bool bP1Checked;
+    UPROPERTY(VisibleAnywhere, Category="CheckingStatus|Player2")
 	bool bP2Checked;
+    UPROPERTY(VisibleAnywhere, Category="CheckingStatus|Player3")
 	bool bP3Checked;
+    UPROPERTY(VisibleAnywhere, Category="CheckingStatus|Player4")
 	bool bP4Checked;
 
+	// TODO: this might be to each Pawn. We might have to cast each pawn on each login to each separate pawn (rather than using 1 united default pawn like in single player game)
+	// TODO: or as keeping track individually like this it might be in PlayerState
+    // so this doesn't need to be updated to the server?
+    UPROPERTY(VisibleAnywhere, Category="SpecialMoves|Castling")
 	bool bP1Castling;
+    UPROPERTY(VisibleAnywhere, Category="SpecialMoves|Castling")
 	bool bP2Castling;
+    UPROPERTY(VisibleAnywhere, Category="SpecialMoves|Castling")
 	bool bP3Castling;
+    UPROPERTY(VisibleAnywhere, Category="SpecialMoves|Castling")
 	bool bP4Castling;
+
 };

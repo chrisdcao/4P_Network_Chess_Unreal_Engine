@@ -3,12 +3,13 @@
 
 #include "PawnActor.h"
 
+#include "Engine/DemoNetDriver.h"
+
 // Sets default values
 APawnActor::APawnActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-	PrimaryActorTick.bStartWithTickEnabled = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
@@ -26,4 +27,9 @@ void APawnActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void APawnActor::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
 }

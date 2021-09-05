@@ -14,17 +14,13 @@ class MYPROJECT_API ACustomGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
-public:
+protected:
+    virtual void PostLogin(APlayerController* NewPlayer) override;
 
+public:
 	ACustomGameMode();
 
-protected:
+private:
+    int8 count;
 
-	virtual void BeginPlay() override;
-
-	void PostLogin(APlayerController* NewPlayer);
-
-public:
-	int8 count;
-	
 };

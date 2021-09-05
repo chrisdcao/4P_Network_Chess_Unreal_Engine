@@ -9,6 +9,7 @@ AParentActor::AParentActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
+    // bReplicates = true;
 	static ConstructorHelpers::FObjectFinder<UMaterialInstance>BottomInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Materials/M_Red.M_Red'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInstance>TopInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Materials/M_Yellow.M_Yellow'"));
 	static ConstructorHelpers::FObjectFinder<UMaterial>LeftInactiveMaterialAsset(TEXT("Material'/Game/Materials/M_Blue.M_Blue'"));
@@ -35,7 +36,9 @@ AParentActor::AParentActor()
 void AParentActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+    //if (HasAuthority())
+        //NetUpdateFrequency = 1;
 }
 
 void AParentActor::SetMaterialInactive(const int8& playerIndex)
