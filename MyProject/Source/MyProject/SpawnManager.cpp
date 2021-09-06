@@ -916,7 +916,8 @@ void ASpawnManager::HighlightSelectedTileByLocation(const FVector& hitLocation)
 	const FVector2D XYIndex = LocationToXY(hitLocation);
 	const int16 indexToHighlight = XYToIndex(XYIndex.X, XYIndex.Y);
 	//UE_LOG(LogTemp, Warning, TEXT("Highlight Tile Index: %d"), indexToHighlight);
-	Board->InstancedStaticMeshComponent->SetCustomDataValue(indexToHighlight, 0, 1.f, true);
+	Board->InstancedStaticMeshComponent->SetCustomDataValue(indexToHighlight, 2, 0.5f, true);
+	Board->InstancedStaticMeshComponent->SetCustomDataValue(indexToHighlight, 1, 0.f, true);
 }
 
 void ASpawnManager::HighlightSelectedTileByIndex(const int16& indexToHighlight)
@@ -924,7 +925,8 @@ void ASpawnManager::HighlightSelectedTileByIndex(const int16& indexToHighlight)
 	//if (!Board)
 	//	UE_LOG(LogTemp, Warning, TEXT("The board is NULL"));
 	//UE_LOG(LogTemp, Warning, TEXT("Highlight Tile Index: %d"), indexToHighlight);
-	Board->InstancedStaticMeshComponent->SetCustomDataValue(indexToHighlight, 0, 1.f, true);
+	Board->InstancedStaticMeshComponent->SetCustomDataValue(indexToHighlight, 2, 0.5f, true);
+	Board->InstancedStaticMeshComponent->SetCustomDataValue(indexToHighlight, 1, 0.f, true);
 }
 
 // TODO: THIS IS NOT FINISHED, the color numeric values are just place holders
@@ -940,25 +942,39 @@ void ASpawnManager::HighlightMovableIndices(const int16& startMovableIndex = 0)	
 		for (/*  */; i < ActiveIndex - 1; i++)
 		{
 			index196 = MovableIndices[i];
-			if (BoardOfPieceIndexInVector[index196] == -1)
-				// Normal Highlight (blank tile)
-				Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 0, 1.f, false);
+            if (BoardOfPieceIndexInVector[index196] == -1) {
+				// Normal Highlight (green)
+				Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 1, 0.f, false);
+				Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 2, 0.5f, false);
+            }
 			else
 			{
 				if (bEnPassant)
 				{   // highlight RED at enPassant eatable place
-					if (BoardOfPieceIndexInVector[index196 + 14] > -1)
-						Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 + 14, 0, 1.f, false);
-					else if (BoardOfPieceIndexInVector[index196 - 14] > -1)
-						Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 - 14, 0, 1.f, false);
-					else if (BoardOfPieceIndexInVector[index196 - 1] > -1)
-						Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 - 1, 0, 1.f, false);
-					else
-						Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 + 1, 0, 1.f, false);
+                    if (BoardOfPieceIndexInVector[index196 + 14] > -1) {
+						Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 + 14, 1, 1.f, false);
+						Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 + 14, 2, 0.5f, false);
+                    }
+                    else if (BoardOfPieceIndexInVector[index196 - 14] > -1) 
+                    {
+                        Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 - 14, 1, 1.f, false);
+                        Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 - 14, 2, 0.5f, false);
+                    }
+                    else if (BoardOfPieceIndexInVector[index196 - 1] > -1) 
+                    {
+                        Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 - 1, 1, 1.f, false);
+                        Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 - 1, 2, 0.5f, false);
+                    }
+                    else 
+                    {
+                        Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 + 1, 1, 1.f, false);
+                        Board->InstancedStaticMeshComponent->SetCustomDataValue(index196 + 1, 2, 0.5f, false);
+                    }
 				}
 				else
 				{	// highlight RED at normal eatable places
-					Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 0, 1.f, false);
+                    Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 1, 1.f, false);
+                    Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 2, 0.5f, false);
 				}
 			}
 		}
@@ -968,17 +984,23 @@ void ASpawnManager::HighlightMovableIndices(const int16& startMovableIndex = 0)	
 		index196 = MovableIndices[i];
 		//UE_LOG(LogTemp, Warning, TEXT("last movable Index is: %d"), index196);
 		// same check logic
-		if (BoardOfPieceIndexInVector[index196] == -1)
-			Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 0, 1.f, true);
-		else
-			Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 0, 1.f, true);
+        if (BoardOfPieceIndexInVector[index196] == -1) 
+        {
+            Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 1, 0.f, false);
+            Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 2, 0.5f, true);
+        }
+        else 
+        {
+            Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 1, 1.f, false);
+            Board->InstancedStaticMeshComponent->SetCustomDataValue(index196, 2, 0.5f, true);
+        }
 	}
 }
 
 void ASpawnManager::UnhighlightTileByIndex(const int16& index, const bool& bMarkRenderStateDirty = false)
 {// change board material back to its original state
  // TODO: do a correct implementation of this after change the M_material in Unreal Editor
-	Board->InstancedStaticMeshComponent->SetCustomDataValue(index, 0, 0.f, bMarkRenderStateDirty);
+	Board->InstancedStaticMeshComponent->SetCustomDataValue(index, 2, 0.f, bMarkRenderStateDirty);
 }
 
 FVector2D ASpawnManager::LocationToXY(const FVector& hitLocation)

@@ -2,7 +2,7 @@
 
 
 #include "CustomGameMode.h"
-
+#include "CustomPlayerState.h"
 #include "CustomGameState.h"
 #include "CustomPlayerController2.h"
 #include "PlayerPawn.h"
@@ -18,27 +18,24 @@ ACustomGameMode::ACustomGameMode()
 
 void ACustomGameMode::PostLogin(APlayerController* NewPlayer) {
     Super::PostLogin(NewPlayer);
-    // Set net player index only works with same-base connection (same internet/splitscreen player)
-    // when this becomes official online game we will set indices through CreateSession or player ID
     if (count == 1) 
     {
-        NewPlayer->NetPlayerIndex = 1;
+        NewPlayer->GetPawn()->GetPlayerState()->SetPlayerId(1);
         count++;
     }
     else if (count == 2) 
     {
-        NewPlayer->NetPlayerIndex = 2;
+        NewPlayer->GetPawn()->GetPlayerState()->SetPlayerId(-2);
         count++;
     }
     else if (count == 3) 
     {
-        NewPlayer->NetPlayerIndex = 3;
+        NewPlayer->GetPawn()->GetPlayerState()->SetPlayerId(3);
         count++;
     }
     else if (count == 4) 
     {
-        NewPlayer->NetPlayerIndex = 4;
+        NewPlayer->GetPawn()->GetPlayerState()->SetPlayerId(-4);
         count++;
     }
-    UE_LOG(LogTemp, Warning, TEXT("Current Net Index: %d"), NewPlayer->NetPlayerIndex);
 }

@@ -16,5 +16,10 @@ class MYPROJECT_API ACustomPlayerState : public APlayerState
 
 public:
     ACustomPlayerState();
+
+    ACustomPlayerState(const FObjectInitializer& ObjectInitializer);
+
+    UPROPERTY(Replicated)
+    int8 playerIndex;
 	
 };

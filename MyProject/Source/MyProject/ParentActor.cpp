@@ -10,10 +10,10 @@ AParentActor::AParentActor()
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
     // bReplicates = true;
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance>BottomInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Materials/M_Red.M_Red'"));
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance>TopInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Materials/M_Yellow.M_Yellow'"));
-	static ConstructorHelpers::FObjectFinder<UMaterial>LeftInactiveMaterialAsset(TEXT("Material'/Game/Materials/M_Blue.M_Blue'"));
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance>RightInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Materials/Green.Green'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance>BottomInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Megascans/Surfaces/Brick_Bond_Cedar_Parquet_ticmabav/Brick_Bond_Cedar_Parquet_ticmabav_inst.Brick_Bond_Cedar_Parquet_ticmabav_inst'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance>TopInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Megascans/Surfaces/Varnished_Madrone_Burl_Veneer_tcnqaeoc/Varnished_Madrone_Burl_Veneer_tcnqaeoc_inst.Varnished_Madrone_Burl_Veneer_tcnqaeoc_inst'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance>LeftInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Megascans/Surfaces/Brick_Bond_Walnut_Parquet_ucmicfjl/Brick_Bond_Walnut_Parquet_ucmicfjl_inst.Brick_Bond_Walnut_Parquet_ucmicfjl_inst'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance>RightInactiveMaterialAsset(TEXT("MaterialInstanceConstant'/Game/Megascans/Surfaces/Varnished_Elm_Burl_Veneer_tcicdebc/Varnished_Elm_Burl_Veneer_tcicdebc_inst.Varnished_Elm_Burl_Veneer_tcicdebc_inst'"));
 
 	static ConstructorHelpers::FObjectFinder<UMaterial>BottomActiveMaterialAsset(TEXT("Material'/Game/Materials/M_ChessPieces.M_ChessPieces'"));
 	static ConstructorHelpers::FObjectFinder<UMaterial>TopActiveMaterialAsset(TEXT("Material'/Game/Materials/M_ChessPieces.M_ChessPieces'"));

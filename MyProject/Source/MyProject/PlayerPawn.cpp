@@ -4,6 +4,7 @@
 #include "PlayerPawn.h"
 #include "GameFramework/Pawn.h"
 #include "CustomGameState.h"
+#include "CustomPlayerState.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -80,10 +81,11 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void APlayerPawn::OnLeftMouseClick(FVector hitLocation)
 {
-    // if you grounded it into a condition like this then it only going to update ít own local spawnManager
-    // TODO: either replicate Player Turn or Update it individually, or ground it into a condition like this but do it separately for each cases?
-    UE_LOG(LogTemp, Warning, TEXT("playerIndex: %d, chessManager->playerTurn: %d"), , chessManager->playerTurn);
-    if (UGameplayStatics::GetPlayerController(GetWorld(),0)->NetPlayerIndex == FMath::Abs(chessManager->playerTurn)) {
+    // must include your OWN player state header for GetPlayerState() type to be completed
+    // Must use GetPlayerId() from player state instead of playerController's NetplayerIndex as PlayerController is NOT replicated
+    // only player state is Replicated!
+    if (GetPlayerState()->GetPlayerId() == chessManager->playerTurn) 
+    {
         chessManager->OnLeftMouseClick(hitLocation);
         Server_OnLeftMouseClick(hitLocation);
     }
@@ -169,8 +171,8 @@ void APlayerPawn::BeginPlay()
     }
 
     chessManager = Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnManager::StaticClass()));
-    auto currentPlayerState = Cast<APlayerState>(GetPlayerState());
-    currentPlayerState->GetPlayerId();
+    //auto currentPlayerState = Cast<APlayerState>(GetPlayerState());
+    //currentPlayerState->GetPlayerId();
 }
 
 FString GetEnumText(ENetRole Role)
@@ -199,7 +201,7 @@ void APlayerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	DrawDebugString(GetWorld(), FVector(0, 0, 0), GetEnumText(GetLocalRole()), this, FColor::White, DeltaTime);
+	//DrawDebugString(GetWorld(), FVector(0, 0, 0), GetEnumText(GetLocalRole()), this, FColor::White, DeltaTime);
 
 	//if (!ensure(SpringArmComp)) return;
 

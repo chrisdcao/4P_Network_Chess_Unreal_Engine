@@ -12,7 +12,7 @@ AChessBoard::AChessBoard()
 	InstancedStaticMeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("InstancedStaticMeshComponent"));
 	SetRootComponent(InstancedStaticMeshComponent);
 	InstancedStaticMeshComponent->SetMobility(EComponentMobility::Static);
-	InstancedStaticMeshComponent->NumCustomDataFloats = 1;
+	InstancedStaticMeshComponent->NumCustomDataFloats = 3;
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("StaticMesh'/Game/Surroundings/Tile.Tile'"));
 	static ConstructorHelpers::FObjectFinder<UMaterial>Material(TEXT("Material'/Game/Materials/M_TestMaterial.M_TestMaterial'"));
@@ -26,9 +26,9 @@ AChessBoard::AChessBoard()
 		InstancedStaticMeshComponent->AddInstanceWorldSpace(FTransform(FVector(i/14 * 400, i%14 * 400, 0.f)));
 		// TODO: mark what Value is What color (create a color chart like Chess Piece Lerp)
 		if (XOR(i % 2, i / 14 % 2))
-			InstancedStaticMeshComponent->SetCustomDataValue(i, 0, 1.f, true);
+			InstancedStaticMeshComponent->SetCustomDataValue(i, 0, 0.f, true);
 		else
-			InstancedStaticMeshComponent->SetCustomDataValue(i, 1, 1.f, true);
+			InstancedStaticMeshComponent->SetCustomDataValue(i, 0, 1.f, true);
 	}
 
 	for (int i = 0; i >= 0 && i <= 2; i++)
