@@ -14,3 +14,6 @@ This repository contains the code I made for 4P Online chess using Unreal Engine
 1. Custom Level of Details (4 LODs) created in Blender, each with custom distances for rendering
 2. Instancing of static meshes: created board tiles using Instanced Static Mesh, saving GPU draw calls
 3. Instancing of Materials: using Create Material Instance, reduce memory pre-loads of materials
+
+# Networking 📶
+The Game is ready-to-play on network with same base connection with 4 players
