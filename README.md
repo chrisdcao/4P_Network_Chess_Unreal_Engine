@@ -5,7 +5,7 @@
 This repository contains the code I made for 4P Online chess using Unreal Engine 4.26. 
 
 # Algorithms and Data Structures 💻
-1. Hash Keys (custom data structure, like HashMap but w/o Values): specifically made for check mate function
+1. Set (Hash Keys only, w/o Values): specifically made for check mate function
 2. Min Priority Queue: for collecting continuous movable indices of pieces
 3. Heap sort: sorting the movables when needed
 4. Bitwise XOR: for setting up the chess board
